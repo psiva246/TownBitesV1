@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="TownBites.csproj" />
+  <Project Path="src/TownBites.API/TownBites.API.csproj" Id="6c629700-088b-4957-83eb-1406bf1bb909" />
+  <Project Path="src/TownBites.Shared/TownBites.Shared.csproj" Id="cd3e51d7-66e7-4a6b-abbf-902f6423148a" />
+  <Project Path="src/TownBites.Web/TownBites.Web.csproj" Id="9a871e11-dfc2-49b2-b3f1-3eff3de973d4" />
 </Solution>

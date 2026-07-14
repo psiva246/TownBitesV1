@@ -1,0 +1,6 @@
+@TownBites.API_HostAddress = http://localhost:5115
+
+GET {{TownBites.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
