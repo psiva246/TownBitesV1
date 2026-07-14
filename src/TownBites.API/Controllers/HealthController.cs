@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TownBites.Infrastructure.Application.Authentication.Interfaces;
 using TownBites.Shared.Common;
 
 namespace TownBites.API.Controllers;
@@ -7,19 +8,24 @@ namespace TownBites.API.Controllers;
 [Route("api/[controller]")]
 public class HealthController : ControllerBase
 {
+    private readonly IPasswordHasherService _passwordHasher;
+
+    public HealthController(IPasswordHasherService passwordHasher)
+    {
+        _passwordHasher = passwordHasher;
+    }
+
     [HttpGet]
     public IActionResult Get()
     {
-        var response = ApiResponse<object>.Ok(
-            new
-            {
-                Version = "1.0.0",
-                Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-                ServerTime = DateTime.UtcNow
-            },
-            "TownBites API is running."
-        );
+        var hash = _passwordHasher.HashPassword("Admin@123");
 
-        return Ok(response);
+        var isValid = _passwordHasher.VerifyPassword(hash, "Admin@123");
+
+        return Ok(new
+        {
+            hash,
+            isValid
+        });
     }
 }
