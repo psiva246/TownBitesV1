@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TownBites.Domain\TownBites.Domain.csproj" />
+    <ProjectReference Include="..\TownBites.Infrastructure\TownBites.Infrastructure.csproj" />
     <ProjectReference Include="..\TownBites.Shared\TownBites.Shared.csproj" />
   </ItemGroup>
 
