@@ -29,8 +29,8 @@ namespace TownBites.Infrastructure.Data
                 entity.Property(e => e.PasswordHash)
                     .IsRequired();
 
-                //entity.Property(e => e.Role)
-                //    .IsRequired();
+                entity.Property(e => e.Role)
+                    .IsRequired();
             });
         }
     }

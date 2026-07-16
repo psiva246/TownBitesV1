@@ -19,6 +19,7 @@ namespace TownBites.Infrastructure.Extensions
 
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IUserService, UserService>();
             return services;
         }
     }

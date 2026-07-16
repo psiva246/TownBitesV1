@@ -1,5 +1,5 @@
 ﻿using TownBites.Domain.Entities;
-
+using TownBites.Shared.Enums;
 public class User : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
