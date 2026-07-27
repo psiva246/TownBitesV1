@@ -35,10 +35,7 @@ public class UserService : IUserService
                 !x.IsDeleted);
     }
 
-    public async Task<User> RegisterCustomerAsync(
-        string name,
-        string phoneNumber,
-        string password)
+    public async Task<User> RegisterCustomerAsync(string name, string phoneNumber, string password)
     {
         if (await PhoneNumberExistsAsync(phoneNumber))
         {
@@ -56,6 +53,31 @@ public class UserService : IUserService
         };
 
         _dbContext.Users.Add(user);
+
+        await _dbContext.SaveChangesAsync();
+
+        return user;
+    }
+
+    public async Task<User?> ValidateUserAsync(string phoneNumber, string password)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x =>
+                x.PhoneNumber == phoneNumber &&
+                x.IsActive &&
+                !x.IsDeleted);
+
+        if (user == null)
+            return null;
+
+        var isValid = _passwordHasher.VerifyPassword(
+            user.PasswordHash,
+            password);
+
+        if (!isValid)
+            return null;
+
+        user.LastLoginOn = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
 

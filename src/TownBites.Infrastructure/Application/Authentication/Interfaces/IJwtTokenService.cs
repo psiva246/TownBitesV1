@@ -4,5 +4,5 @@ namespace TownBites.Infrastructure.Application.Authentication.Interfaces;
 
 public interface IJwtTokenService
 {
-    string GenerateToken(User user);
+    (string Token, DateTime ExpiresAt) GenerateToken(User user);
 }

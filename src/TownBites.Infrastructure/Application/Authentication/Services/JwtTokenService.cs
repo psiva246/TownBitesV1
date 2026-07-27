@@ -18,7 +18,7 @@ public class JwtTokenService : IJwtTokenService
         _options = options.Value;
     }
 
-    public string GenerateToken(User user)
+    public (string Token, DateTime ExpiresAt) GenerateToken(User user)
     {
         var claims = new List<Claim>
         {
@@ -28,12 +28,9 @@ public class JwtTokenService : IJwtTokenService
             new("phone", user.PhoneNumber)
         };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_options.Key));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
 
-        var credentials = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,
@@ -42,6 +39,8 @@ public class JwtTokenService : IJwtTokenService
             expires: DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var expiresAt = DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes);
+
+        return (new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }

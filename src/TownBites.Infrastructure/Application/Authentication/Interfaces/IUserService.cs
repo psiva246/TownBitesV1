@@ -6,10 +6,9 @@ public interface IUserService
 {
     Task<User?> GetByPhoneNumberAsync(string phoneNumber);
 
-    Task<User> RegisterCustomerAsync(
-        string name,
-        string phoneNumber,
-        string password);
+    Task<User> RegisterCustomerAsync(string name, string phoneNumber, string password);
 
     Task<bool> PhoneNumberExistsAsync(string phoneNumber);
+
+    Task<User?> ValidateUserAsync(string phoneNumber, string password);
 }
