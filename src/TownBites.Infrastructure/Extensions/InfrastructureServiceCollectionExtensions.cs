@@ -23,6 +23,8 @@ namespace TownBites.Infrastructure.Extensions
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRestaurantService, RestaurantService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IMenuItemService, MenuItemService>();
             return services;
         }
     }

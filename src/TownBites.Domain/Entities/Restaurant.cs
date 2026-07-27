@@ -16,4 +16,5 @@ public class Restaurant : BaseEntity
     public bool IsOpen { get; set; } = true;
 
     public bool IsActive { get; set; } = true;
+    public ICollection<Category> Categories { get; set; } = new List<Category>();
 }
