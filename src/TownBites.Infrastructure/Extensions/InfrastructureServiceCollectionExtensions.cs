@@ -26,6 +26,7 @@ namespace TownBites.Infrastructure.Extensions
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IMenuItemService, MenuItemService>();
             services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IOrderService, OrderService>();
             return services;
         }
     }

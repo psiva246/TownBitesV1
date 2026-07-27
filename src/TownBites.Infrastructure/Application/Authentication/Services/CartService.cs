@@ -164,14 +164,13 @@ public class CartService : ICartService
 
     public async Task<int> CheckoutAsync(int userId)
     {
-        await using var transaction =
-            await _dbContext.Database.BeginTransactionAsync();
-
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
             var cart = await _dbContext.Carts
                 .Include(x => x.Items)
                     .ThenInclude(x => x.MenuItem)
+                    .ThenInclude(x => x.Category)
                 .FirstOrDefaultAsync(x =>
                     x.UserId == userId &&
                     !x.IsCheckedOut);
@@ -182,53 +181,148 @@ public class CartService : ICartService
             if (!cart.Items.Any())
                 throw new Exception("Cart is empty.");
 
-            var order = new Order
-            {
-                UserId = userId,
-                OrderedOn = DateTime.UtcNow,
-                Status = OrderStatus.Pending,
-                TotalAmount = 0
-            };
+            //var restaurentIds = cart.Items.ToList().Select(x => x.MenuItem.Category.RestaurantId).Distinct().ToList();
+            //var orderIds = new List<int>();
 
-            decimal grandTotal = 0;
-
-            foreach (var cartItem in cart.Items)
-            {
-                var total = cartItem.UnitPrice * cartItem.Quantity;
-
-                grandTotal += total;
-
-                order.Items.Add(new OrderItem
+            //foreach (var restaurantId in restaurentIds)
+            //{
+                var order = new Order
                 {
-                    MenuItemId = cartItem.MenuItemId,
-                    ItemName = cartItem.MenuItem.Name,
-                    Quantity = cartItem.Quantity,
-                    UnitPrice = cartItem.UnitPrice,
-                    TotalPrice = total
-                });
-            }
+                    UserId = userId,
+                    OrderedOn = DateTime.UtcNow,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 0,
+                    RestaurantId = cart.Items.First().MenuItem.Category.RestaurantId
+                };
 
-            order.TotalAmount = grandTotal;
+                decimal grandTotal = 0;
 
-            _dbContext.Orders.Add(order);
+                foreach (var cartItem in cart.Items)
+                {
+                    //if (cartItem.MenuItem.Category.RestaurantId == restaurantId)
+                    //{
+                        var total = cartItem.UnitPrice * cartItem.Quantity;
 
-            cart.IsCheckedOut = true;
+                        grandTotal += total;
 
-            await _dbContext.SaveChangesAsync();
+                        order.Items.Add(new OrderItem
+                        {
+                            MenuItemId = cartItem.MenuItemId,
+                            ItemName = cartItem.MenuItem.Name,
+                            Quantity = cartItem.Quantity,
+                            UnitPrice = cartItem.UnitPrice,
+                            TotalPrice = total,
+                        });
+                    //}
+                }
 
-            var newCart = new Cart
-            {
-                UserId = userId,
-                IsCheckedOut = false
-            };
+                order.TotalAmount = grandTotal;
+                _dbContext.Orders.Add(order);
 
-            _dbContext.Carts.Add(newCart);
+                cart.IsCheckedOut = true;
 
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync();
 
+                // capture created order id
+                //orderIds.Add(order.Id);
+
+                var newCart = new Cart
+                {
+                    UserId = userId,
+                    IsCheckedOut = false
+                };
+
+                _dbContext.Carts.Add(newCart);
+
+                await _dbContext.SaveChangesAsync();
+            //}
             await transaction.CommitAsync();
 
             return order.Id;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    public async Task<List<int>> CheckoutMultiAsync(int userId)
+    {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            var cart = await _dbContext.Carts
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.MenuItem)
+                    .ThenInclude(x => x.Category)
+                .FirstOrDefaultAsync(x =>
+                    x.UserId == userId &&
+                    !x.IsCheckedOut);
+
+            if (cart == null)
+                throw new Exception("Cart not found.");
+
+            if (!cart.Items.Any())
+                throw new Exception("Cart is empty.");
+
+            var restaurentIds = cart.Items.ToList().Select(x => x.MenuItem.Category.RestaurantId).Distinct().ToList();
+            var orderIds = new List<int>();
+
+            foreach (var restaurantId in restaurentIds)
+            {
+                var order = new Order
+                {
+                    UserId = userId,
+                    OrderedOn = DateTime.UtcNow,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 0,
+                    RestaurantId = restaurantId
+                };
+
+                decimal grandTotal = 0;
+
+                foreach (var cartItem in cart.Items)
+                {
+                    if (cartItem.MenuItem.Category.RestaurantId == restaurantId)
+                    {
+                        var total = cartItem.UnitPrice * cartItem.Quantity;
+
+                        grandTotal += total;
+
+                        order.Items.Add(new OrderItem
+                        {
+                            MenuItemId = cartItem.MenuItemId,
+                            ItemName = cartItem.MenuItem.Name,
+                            Quantity = cartItem.Quantity,
+                            UnitPrice = cartItem.UnitPrice,
+                            TotalPrice = total,
+                        });
+                    }
+                }
+
+                order.TotalAmount = grandTotal;
+                _dbContext.Orders.Add(order);
+
+                cart.IsCheckedOut = true;
+
+                await _dbContext.SaveChangesAsync();
+
+                // capture created order id
+                orderIds.Add(order.Id);
+
+                var newCart = new Cart
+                {
+                    UserId = userId,
+                    IsCheckedOut = false
+                };
+
+                _dbContext.Carts.Add(newCart);
+
+                await _dbContext.SaveChangesAsync();
+            }
+            await transaction.CommitAsync();
+
+            return orderIds;
         }
         catch
         {

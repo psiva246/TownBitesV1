@@ -17,4 +17,8 @@
     <ProjectReference Include="..\TownBites.Shared\TownBites.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

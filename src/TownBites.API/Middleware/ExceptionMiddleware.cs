@@ -28,13 +28,9 @@ public sealed class ExceptionMiddleware
         {
             var errorId = Guid.NewGuid().ToString("N");
 
-            _logger.LogError(
-                ex,
-                "Unhandled exception. ErrorId: {ErrorId}",
-                errorId);
+            _logger.LogError(ex, "Unhandled exception. ErrorId: {ErrorId}", errorId);
 
-            context.Response.StatusCode =
-                (int)HttpStatusCode.InternalServerError;
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             context.Response.ContentType = "application/json";
 
@@ -42,8 +38,7 @@ public sealed class ExceptionMiddleware
                 "An unexpected error occurred.",
                 new ApiError
                 {
-                    Code = "SERVER_ERROR",
-                    Message = $"Reference Id: {errorId}"
+                    Code = "SERVER_ERROR", Message = $"Reference Id: {errorId}"
                 });
 
             var json = JsonSerializer.Serialize(response);

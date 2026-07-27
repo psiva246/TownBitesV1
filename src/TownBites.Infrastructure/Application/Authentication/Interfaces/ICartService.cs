@@ -17,6 +17,6 @@ public interface ICartService
     Task<CartResponse> UpdateItemAsync(int userId, int cartItemId, UpdateCartItemRequest request);
 
     Task<bool> RemoveItemAsync(int userId, int cartItemId);
-
     Task<int> CheckoutAsync(int userId);
+    Task<List<int>> CheckoutMultiAsync(int userId);
 }

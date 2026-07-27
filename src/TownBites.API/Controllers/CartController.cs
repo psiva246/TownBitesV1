@@ -120,9 +120,8 @@ public class CartController : ControllerBase
     [HttpPost("checkout")]
     public async Task<IActionResult> Checkout()
     {
-        var orderId = await _cartService.CheckoutAsync(
-            GetUserId());
-
+        var orderId = await _cartService.CheckoutAsync(GetUserId());
+        var mulOrderId = await _cartService.CheckoutMultiAsync(GetUserId());
         return Ok(ApiResponse<object>.Ok(
             new
             {
