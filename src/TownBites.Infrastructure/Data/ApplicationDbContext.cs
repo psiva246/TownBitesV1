@@ -14,6 +14,10 @@ namespace TownBites.Infrastructure.Data
         public DbSet<Restaurant> Restaurants => Set<Restaurant>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<MenuItem> MenuItems => Set<MenuItem>();
+        public DbSet<Cart> Carts => Set<Cart>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -89,6 +93,21 @@ namespace TownBites.Infrastructure.Data
                       .HasForeignKey(x => x.CategoryId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<Cart>()
+                .HasMany(x => x.Items)
+                .WithOne(x => x.Cart)
+                .HasForeignKey(x => x.CartId);
+
+            modelBuilder.Entity<CartItem>()
+                .Property(x => x.UnitPrice)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(x => x.MenuItem)
+                .WithMany()
+                .HasForeignKey(x => x.MenuItemId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

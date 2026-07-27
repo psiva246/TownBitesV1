@@ -9,7 +9,7 @@ using TownBites.Shared.Contracts.Responses;
 namespace TownBites.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Admin,Restaurant")]
+//[Authorize(Roles = "Admin,Restaurant")]
 [Route("api")]
 public class MenuItemsController : ControllerBase
 {
