@@ -21,3 +21,4 @@ public class RegisterRequest
     [Compare(nameof(Password))]
     public string ConfirmPassword { get; set; } = string.Empty;
 }
+

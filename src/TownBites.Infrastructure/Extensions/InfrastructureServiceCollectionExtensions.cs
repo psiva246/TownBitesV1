@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TownBites.Infrastructure.Data;
 using TownBites.Infrastructure.Application.Authentication.Interfaces;
 using TownBites.Infrastructure.Application.Authentication.Services;
+using TownBites.Infrastructure.Data;
+using TownBites.Infrastructure.Interfaces;
+using TownBites.Infrastructure.Services;
 
 namespace TownBites.Infrastructure.Extensions
 {
@@ -20,6 +22,7 @@ namespace TownBites.Infrastructure.Extensions
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRestaurantService, RestaurantService>();
             return services;
         }
     }

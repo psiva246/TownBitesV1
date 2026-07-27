@@ -11,7 +11,7 @@ namespace TownBites.Infrastructure.Data
         }
 
         public DbSet<User> Users => Set<User>();
-
+        public DbSet<Restaurant> Restaurants => Set<Restaurant>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,6 +30,24 @@ namespace TownBites.Infrastructure.Data
                     .IsRequired();
 
                 entity.Property(e => e.Role)
+                    .IsRequired();
+            });
+            modelBuilder.Entity<Restaurant>(entity =>
+            {
+                entity.Property(x => x.Name)
+                    .HasMaxLength(150)
+                    .IsRequired();
+
+                entity.Property(x => x.OwnerName)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(x => x.PhoneNumber)
+                    .HasMaxLength(20)
+                    .IsRequired();
+
+                entity.Property(x => x.Address)
+                    .HasMaxLength(500)
                     .IsRequired();
             });
         }
