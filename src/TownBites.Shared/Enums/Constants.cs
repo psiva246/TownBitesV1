@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace TownBites.Shared.Enums
 {
+    public enum OrderStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Preparing = 3,
+        Ready = 4,
+        Delivered = 5,
+        Cancelled = 6
+    }
     public enum UserRole
     {
         Admin = 1,

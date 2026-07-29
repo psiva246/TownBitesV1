@@ -20,6 +20,7 @@ namespace TownBites.Infrastructure.Extensions
                     configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRestaurantService, RestaurantService>();
@@ -27,6 +28,10 @@ namespace TownBites.Infrastructure.Extensions
             services.AddScoped<IMenuItemService, MenuItemService>();
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<ICustomerAddressService, CustomerAddressService>();
+            services.AddScoped<IRestaurantProfileService, RestaurantProfileService>();
+            services.AddScoped<IFileService, FileService>();
             return services;
         }
     }

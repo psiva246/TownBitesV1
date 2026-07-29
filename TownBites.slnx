@@ -3,5 +3,5 @@
   <Project Path="src/TownBites.Domain/TownBites.Domain.csproj" Id="ff56f91c-c062-4a30-b30c-36c6a622c74d" />
   <Project Path="src/TownBites.Infrastructure/TownBites.Infrastructure.csproj" Id="841715f3-0e9c-42fd-9892-375904d6e9d8" />
   <Project Path="src/TownBites.Shared/TownBites.Shared.csproj" Id="cd3e51d7-66e7-4a6b-abbf-902f6423148a" />
-  <Project Path="src/TownBites.Web/TownBites.Web.csproj" Id="9a871e11-dfc2-49b2-b3f1-3eff3de973d4" />
+  <Project Path="src/TownBites.Web/TownBites.AdminWeb.csproj" Id="9a871e11-dfc2-49b2-b3f1-3eff3de973d4" />
 </Solution>

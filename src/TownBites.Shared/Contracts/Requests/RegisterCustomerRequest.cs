@@ -2,21 +2,21 @@
 
 namespace TownBites.Shared.Contracts.Requests;
 
-/// <summary>
-/// Login request.
-/// </summary>
-public class LoginRequest
+public class RegisterCustomerRequest
 {
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
     [Required]
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    //[Required]
-    //[Phone]
-    //[MaxLength(20)]
-    //public string PhoneNumber { get; set; } = string.Empty;
+    [Required]
+    [Phone]
+    public string PhoneNumber { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(100)]
+    [MinLength(6)]
     public string Password { get; set; } = string.Empty;
 }

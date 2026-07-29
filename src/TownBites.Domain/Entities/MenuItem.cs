@@ -11,6 +11,5 @@ public class MenuItem : BaseEntity
     public bool IsAvailable { get; set; } = true;
     public int PreparationTimeInMinutes { get; set; }
     public string? ImageUrl { get; set; }
-    public bool IsActive { get; set; } = true;
     public Category Category { get; set; } = null!;
 }

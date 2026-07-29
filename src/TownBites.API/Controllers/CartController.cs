@@ -28,7 +28,8 @@ public class CartController : ControllerBase
     private int GetUserId()
     {
         // Temporary
-        return 1;
+        //return 1;
+        return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         // Future implementation
         /*

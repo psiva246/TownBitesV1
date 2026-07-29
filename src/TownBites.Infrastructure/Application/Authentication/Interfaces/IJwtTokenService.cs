@@ -4,5 +4,5 @@ namespace TownBites.Infrastructure.Application.Authentication.Interfaces;
 
 public interface IJwtTokenService
 {
-    (string Token, DateTime ExpiresAt) GenerateToken(User user);
+    string GenerateToken(User user, int? restaurantId = null);
 }

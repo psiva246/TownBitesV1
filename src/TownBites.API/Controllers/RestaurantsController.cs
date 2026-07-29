@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TownBites.Domain.Entities;
 using TownBites.Infrastructure.Interfaces;
 using TownBites.Shared.Common;
@@ -9,6 +10,7 @@ namespace TownBites.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+//[Authorize(Roles = "Restaurant")]
 public class RestaurantsController : ControllerBase
 {
     private readonly IRestaurantService _restaurantService;

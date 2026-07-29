@@ -18,6 +18,8 @@ namespace TownBites.Infrastructure.Data
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+        public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -56,6 +58,20 @@ namespace TownBites.Infrastructure.Data
                 entity.Property(x => x.Address)
                     .HasMaxLength(500)
                     .IsRequired();
+                entity.Property(x => x.Description)
+                .HasMaxLength(1000);
+
+                entity.Property(x => x.LogoUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.CoverImageUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.DeliveryCharge)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(x => x.MinimumOrderAmount)
+                    .HasColumnType("decimal(18,2)");
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -108,6 +124,30 @@ namespace TownBites.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(x => x.MenuItemId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.Name)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.ContactPerson)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.PhoneNumber)
+                .HasMaxLength(15);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.City)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.State)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<CustomerAddress>()
+                .Property(x => x.Pincode)
+                .HasMaxLength(10);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TownBites.Infrastructure.Data;
 using TownBites.Shared.Common;
@@ -8,6 +9,7 @@ namespace TownBites.API.Controllers;
 
 [ApiController]
 [Route("api/customer")]
+//[Authorize(Roles = "Customer")]
 public class CustomerController : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext;

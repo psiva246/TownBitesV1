@@ -11,8 +11,6 @@ public class Category : BaseEntity
 
     public int DisplayOrder { get; set; }
 
-    public bool IsActive { get; set; } = true;
-
     // Navigation Property
     public Restaurant Restaurant { get; set; } = null!;
     public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
