@@ -6,11 +6,15 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 //using TownBites.API.Configuration;
 using TownBites.API.Extensions;
+using TownBites.Infrastructure.Application.Authentication.Services;
 using TownBites.Infrastructure.Data;
 using TownBites.Infrastructure.Extensions;
-using TownBites.Shared.Options;
+using TownBites.Infrastructure.Hubs;
+using TownBites.Infrastructure.Interfaces;
+using TownBites.Infrastructure.Mappings;
+using TownBites.Infrastructure.Services;
 using TownBites.Shared.Configurations;
-
+using TownBites.Shared.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
@@ -54,18 +58,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.Configure<JwtOptions>(
-    builder.Configuration.GetSection(JwtOptions.SectionName));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
 var jwtOptions = builder.Configuration
     .GetSection(JwtOptions.SectionName)
     .Get<JwtOptions>()!;
 
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -90,6 +90,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddSignalR();
+//builder.Services.AddAutoMapper(typeof(Program));
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 var app = builder.Build();
 app.UseGlobalExceptionHandling();
 if (app.Environment.IsDevelopment())
@@ -106,5 +114,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<OrderHub>("/hubs/orders");
 app.Run();

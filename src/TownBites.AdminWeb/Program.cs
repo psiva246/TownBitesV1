@@ -1,27 +1,51 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using TownBites.AdminWeb.Interfaces;
+using TownBites.AdminWeb.Models;
+using TownBites.AdminWeb.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient();
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpClient<IAuthApiService, AuthApiService>();
+builder.Services.AddHttpClient<ICategoryApiService, CategoryApiService>();
+builder.Services.AddHttpClient<IUploadApiService, UploadApiService>();
+builder.Services.AddHttpClient<IMenuItemApiService, MenuItemApiService>();
+builder.Services.AddHttpClient<IFileApiService, FileApiService>();
+builder.Services.AddHttpClient<IDashboardApiService, DashboardApiService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

@@ -1,0 +1,18 @@
+﻿@model TownBites.AdminWeb.Models.Category.CreateCategoryRequest
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<h2>Create Category</h2>
+<hr />
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <partial name="_CategoryForm" model="Model" />
+    <button class="btn btn-success"> Save </button>
+
+    <a asp-action="Index" class="btn btn-secondary"> Cancel </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

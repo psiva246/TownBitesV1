@@ -1,0 +1,19 @@
+﻿@model TownBites.AdminWeb.Models.Category.UpdateCategoryRequest
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<h2>Edit Category</h2>
+<hr />
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <partial name="_CategoryForm" model="Model" />
+    <button class="btn btn-primary"> Update </button>
+    <a asp-action="Index" class="btn btn-secondary"> Cancel </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,301 @@
+﻿@model TownBites.AdminWeb.ViewModels.Dashboard.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard</h2>
+
+        <span class="text-muted">
+            @DateTime.Now.ToString("dddd, dd MMM yyyy")
+        </span>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Today's Orders
+                    </h6>
+
+                    <h2 id="todayOrders">
+                        @Model.TodayOrders
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Pending Orders
+                    </h6>
+
+                    <h2 id="pendingOrders">
+                        @Model.PendingOrders
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Completed Orders
+                    </h6>
+
+                    <h2 id="completedOrders">
+                        @Model.CompletedOrders
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Today's Revenue
+                    </h6>
+
+                    <h2 id="todayRevenue">
+                        ₹@Model.TodayRevenue
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    Recent Orders
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-striped">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Order</th>
+
+                                <th>Total</th>
+
+                                <th>Status</th>
+
+                                <th>Date</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="recentOrders">
+
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+
+                                    <td>#@order.Id</td>
+
+                                    <td>₹@order.TotalAmount</td>
+
+                                    <td>@order.Status</td>
+
+                                    <td>@order.OrderedOn.ToString("dd MMM HH:mm")</td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    Top Selling Items
+
+                </div>
+
+                <div class="card-body">
+
+                    <ul class="list-group">
+
+                        @foreach (var item in Model.TopSellingItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+
+                                <span>@item.Name</span>
+
+                                <span class="badge bg-primary">
+
+                                    @item.QuantitySold
+
+                                </span>
+
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mt-4">
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header">
+
+                        Revenue (Last 7 Days)
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <canvas id="revenueChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header">
+
+                        Orders by Status
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <canvas id="statusChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script>
+
+        const revenueLabels =
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.RevenueChart.Select(x => x.Day)));
+
+        const revenueData =
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.RevenueChart.Select(x => x.Revenue)));
+
+        new Chart(document.getElementById('revenueChart'), {
+
+            type: 'line',
+
+            data: {
+
+                labels: revenueLabels,
+
+                datasets: [{
+
+                    label: 'Revenue',
+
+                    data: revenueData
+
+                }]
+            }
+
+        });
+
+        const statusLabels =
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.StatusChart.Select(x => x.Status)));
+
+        const statusData =
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.StatusChart.Select(x => x.Count)));
+
+        new Chart(document.getElementById('statusChart'), {
+
+            type: 'pie',
+
+            data: {
+
+                labels: statusLabels,
+
+                datasets: [{
+
+                    data: statusData
+
+                }]
+            }
+
+        });
+
+    </script>
+}

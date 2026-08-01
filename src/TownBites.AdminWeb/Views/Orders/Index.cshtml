@@ -1,0 +1,10 @@
+﻿@section Scripts
+{
+    <script src="~/js/orders.js"></script>
+
+    <script>
+
+        startSignalR("@User.FindFirst("RestaurantId")?.Value");
+
+    </script>
+}

@@ -1,19 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using TownBites.Domain.Entities;
 using TownBites.Infrastructure.Data;
 using TownBites.Infrastructure.Interfaces;
 using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
 using TownBites.Shared.Enums;
+using TownBites.Shared.Helpers;
+using AutoMapper;
 
 namespace TownBites.Infrastructure.Application.Authentication.Services
 {
     public class OrderService : IOrderService
     {
         private readonly ApplicationDbContext _dbContext;
-        public OrderService(ApplicationDbContext dbContext)
+        //private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
+        public OrderService(ApplicationDbContext dbContext, /*IMapper mapper,*/ INotificationService notificationService)
         {
             _dbContext = dbContext;
+            //_mapper = mapper;
+            _notificationService = notificationService;
         }
         public async Task<List<OrderResponse>> GetPendingOrdersAsync()
         {
@@ -27,7 +34,7 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                     Id = x.Id,
                     UserId = x.UserId,
                     TotalAmount = x.TotalAmount,
-                    Status = x.Status.ToString(),
+                    Status = x.Status,
                     OrderedOn = x.OrderedOn,
 
                     Items = x.Items.Select(i => new OrderItemResponse
@@ -53,7 +60,7 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                     Id = x.Id,
                     UserId = x.UserId,
                     TotalAmount = x.TotalAmount,
-                    Status = x.Status.ToString(),
+                    Status = x.Status,
                     OrderedOn = x.OrderedOn,
 
                     Items = x.Items.Select(i => new OrderItemResponse
@@ -75,6 +82,11 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
 
             if (order == null)
                 return false;
+
+            if (!OrderStatusTransitions.Allowed.TryGetValue(order.Status, out var allowed) || !allowed.Contains(status))
+            {
+                throw new InvalidOperationException($"Cannot change order from {order.Status} to {status}.");
+            }
 
             order.Status = status;
 
@@ -112,7 +124,7 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                         UserId = o.UserId,
                         RestaurantId = o.RestaurantId,
                         TotalAmount = o.TotalAmount,
-                        Status = o.Status.ToString(),
+                        Status = o.Status,
                         OrderedOn = o.OrderedOn,
 
                         Items = o.Items.Select(i => new OrderItemResponse
@@ -146,7 +158,7 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                     UserId = o.UserId,
                     RestaurantId = o.RestaurantId,
                     TotalAmount = o.TotalAmount,
-                    Status = o.Status.ToString(),
+                    Status = o.Status,
                     OrderedOn = o.OrderedOn,
 
                     Items = o.Items.Select(i => new OrderItemResponse

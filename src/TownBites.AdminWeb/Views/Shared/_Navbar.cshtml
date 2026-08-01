@@ -1,0 +1,22 @@
+﻿<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            TownBites Admin
+        </span>
+
+        <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-user"></i>
+                @User.Identity?.Name
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="dropdown-item"> Logout </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

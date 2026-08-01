@@ -1,0 +1,22 @@
+﻿.page-title {
+    font-weight: 600;
+}
+
+.table-actions {
+    white-space: nowrap;
+}
+
+.image-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.badge {
+    font-size: 0.85rem;
+}

@@ -15,4 +15,5 @@ public class OrderItem : BaseEntity
     public decimal TotalPrice { get; set; }
 
     public Order Order { get; set; } = null!;
+    public MenuItem MenuItem { get; set; } = null!;
 }

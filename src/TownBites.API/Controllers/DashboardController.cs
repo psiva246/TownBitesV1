@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TownBites.Infrastructure.Interfaces;
-using TownBites.Shared.Common;
 using TownBites.Shared.Contracts.Responses;
-
+using TownBites.API.Helpers;
 namespace TownBites.API.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Admin,Restaurant")]
 [Route("api/dashboard")]
+[Authorize]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;
@@ -18,23 +18,23 @@ public class DashboardController : ControllerBase
         _dashboardService = dashboardService;
     }
 
-    // Temporary implementation
-    // Replace with logged-in restaurant ID later
-    private int GetRestaurantId()
-    {
-        var restaurantId = User.FindFirst("RestaurantId")?.Value;
-
-        if (string.IsNullOrEmpty(restaurantId))
-            throw new UnauthorizedAccessException("Restaurant not authenticated.");
-
-        return int.Parse(restaurantId);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetDashboard()
+    public async Task<IActionResult> Get()
     {
-        var dashboard = await _dashboardService.GetDashboardAsync(GetRestaurantId());
+        var restaurantClaim = User.FindFirst("RestaurantId")?.Value;
 
-        return Ok(ApiResponse<DashboardResponse>.Ok(dashboard, "Dashboard loaded successfully."));
+        if (string.IsNullOrWhiteSpace(restaurantClaim))
+            return Unauthorized();
+
+        var restaurantId = int.Parse(restaurantClaim);
+
+        var dashboard = await _dashboardService.GetDashboardAsync(restaurantId);
+
+        return Ok(new ApiResponse<DashboardResponse>
+        {
+            Success = true,
+            Message = "Dashboard loaded successfully.",
+            Data = dashboard
+        });
     }
 }

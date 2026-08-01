@@ -19,45 +19,88 @@ public class DashboardService : IDashboardService
     {
         var today = DateTime.Today;
 
-        var orders = await _dbContext.Orders
-            .Include(o => o.Items)
-            .Where(o => o.RestaurantId == restaurantId && o.OrderedOn.Date == today)
+        var orders = _dbContext.Orders
+            .Where(x => x.RestaurantId == restaurantId);
+
+        var todayOrders = await orders
+            .Where(x => x.OrderedOn.Date == today)
             .ToListAsync();
 
-        var response = new DashboardResponse
-        {
-            TodayOrders = orders.Count,
-
-            PendingOrders = orders.Count(x => x.Status == OrderStatus.Pending),
-
-            PreparingOrders = orders.Count(x => x.Status == OrderStatus.Preparing),
-
-            ReadyOrders = orders.Count(x => x.Status == OrderStatus.Ready),
-
-            DeliveredOrders = orders.Count(x => x.Status == OrderStatus.Delivered),
-
-            CancelledOrders = orders.Count(x => x.Status == OrderStatus.Cancelled),
-
-            TodayRevenue = orders.Where(x => x.Status != OrderStatus.Cancelled).Sum(x => x.TotalAmount)
-        };
-
-        response.PopularItems = orders
-            .SelectMany(x => x.Items)
-            .GroupBy(x => new
-            {
-                x.MenuItemId,
-                x.ItemName
-            })
-            .Select(g => new PopularMenuItemResponse
-            {
-                MenuItemId = g.Key.MenuItemId,
-                Name = g.Key.ItemName,
-                TotalOrdered = g.Sum(x => x.Quantity)
-            })
-            .OrderByDescending(x => x.TotalOrdered)
+        var recentOrders = await orders
+            .OrderByDescending(x => x.OrderedOn)
             .Take(10)
+            .Select(x => new OrderResponse
+            {
+                Id = x.Id,
+                UserId = x.UserId,
+                RestaurantId = x.RestaurantId,
+                OrderedOn = x.OrderedOn,
+                Status = x.Status,
+                TotalAmount = x.TotalAmount
+            })
+            .ToListAsync();
+
+        var topSellingItems = await _dbContext.OrderItems
+            .Where(x => x.Order.RestaurantId == restaurantId)
+            .GroupBy(x => x.MenuItem.Name)
+            .Select(g => new TopSellingItemResponse
+            {
+                Name = g.Key,
+                QuantitySold = g.Sum(x => x.Quantity)
+            })
+            .OrderByDescending(x => x.QuantitySold)
+            .Take(10)
+            .ToListAsync();
+
+        //var revenueChart = await orders
+        //    .Where(x => x.OrderedOn >= DateTime.Today.AddDays(-6))
+        //    .GroupBy(x => x.OrderedOn.Date)
+        //    .Select(g => new RevenueChartResponse
+        //    {
+        //        Day = g.Key.ToString("ddd"),
+        //        Revenue = g.Sum(x => x.TotalAmount)
+        //    })
+        //    .OrderBy(x => x.Day)
+        //    .ToListAsync();
+
+        var revenueData = await orders
+            .Where(x => x.OrderedOn >= DateTime.Today.AddDays(-6))
+            .GroupBy(x => x.OrderedOn.Date)
+            .Select(g => new
+            {
+                Date = g.Key,
+                Revenue = g.Sum(x => x.TotalAmount)
+            })
+            .OrderBy(x => x.Date)
+            .ToListAsync();
+
+        var revenueChart = revenueData
+            .Select(x => new RevenueChartResponse
+            {
+                Day = x.Date.ToString("ddd"),
+                Revenue = x.Revenue
+            })
             .ToList();
 
-        return response;
+        var statusChart = await orders
+            .GroupBy(x => x.Status)
+            .Select(g => new OrderStatusChartResponse
+            {
+                Status = g.Key.ToString(),
+                Count = g.Count()
+            })
+            .ToListAsync();
+
+        return new DashboardResponse
+        {
+            TodayOrders = todayOrders.Count,
+            PendingOrders = await orders.CountAsync(x => x.Status == OrderStatus.Pending),
+            CompletedOrders = await orders.CountAsync(x => x.Status == OrderStatus.Delivered),
+            TodayRevenue = todayOrders.Sum(x => x.TotalAmount),
+            RecentOrders = recentOrders,
+            TopSellingItems = topSellingItems,
+            RevenueChart = revenueChart,
+            StatusChart = statusChart
+        };
     }
 }

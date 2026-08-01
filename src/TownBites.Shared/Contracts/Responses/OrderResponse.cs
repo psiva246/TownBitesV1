@@ -1,4 +1,6 @@
-﻿namespace TownBites.Shared.Contracts.Responses;
+﻿using TownBites.Shared.Enums;
+
+namespace TownBites.Shared.Contracts.Responses;
 
 public class OrderResponse
 {
@@ -10,7 +12,7 @@ public class OrderResponse
 
     public decimal TotalAmount { get; set; }
 
-    public string Status { get; set; } = string.Empty;
+    public OrderStatus Status { get; set; }
 
     public DateTime OrderedOn { get; set; }
 
