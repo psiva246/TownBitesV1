@@ -32,6 +32,7 @@ namespace TownBites.Infrastructure.Extensions
             services.AddScoped<ICustomerAddressService, CustomerAddressService>();
             services.AddScoped<IRestaurantProfileService, RestaurantProfileService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IAuditService, AuditService>();
             return services;
         }
     }

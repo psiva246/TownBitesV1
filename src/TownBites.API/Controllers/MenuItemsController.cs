@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TownBites.Domain.Entities;
 using TownBites.Infrastructure.Interfaces;
 using TownBites.Shared.Common;
+using TownBites.Shared.Contracts.Common;
 using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
 
@@ -24,9 +25,7 @@ public class MenuItemsController : ControllerBase
     /// Create a menu item under a category.
     /// </summary>
     [HttpPost("categories/{categoryId:int}/menu-items")]
-    public async Task<IActionResult> Create(
-        int categoryId,
-        [FromBody] CreateMenuItemRequest request)
+    public async Task<IActionResult> Create(int categoryId, [FromBody] CreateMenuItemRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -79,13 +78,25 @@ public class MenuItemsController : ControllerBase
         return Ok(ApiResponse<MenuItemResponse>.Ok(ToResponse(menuItem)));
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest request)
+    {
+        var restaurantClaim = User.FindFirst("RestaurantId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(restaurantClaim))
+            return Unauthorized();
+
+        var restaurantId = int.Parse(restaurantClaim);
+
+        var result = await _menuItemService.GetAllAsync(restaurantId, request);
+
+        return Ok(result);
+    }
     /// <summary>
     /// Update menu item.
     /// </summary>
     [HttpPut("menu-items/{id:int}")]
-    public async Task<IActionResult> Update(
-        int id,
-        [FromBody] UpdateMenuItemRequest request)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateMenuItemRequest request)
     {
         if (!ModelState.IsValid)
         {
