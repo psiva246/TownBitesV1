@@ -1,25 +1,21 @@
-﻿namespace TownBites.CustomerApp
-{
-    //public partial class App : Application
-    //{
-    //    public App()
-    //    {
-    //        InitializeComponent();
-    //        MainPage = new AppShell();
-    //    }
+﻿using TownBites.CustomerApp.Views;
 
-    //    protected override Window CreateWindow(IActivationState? activationState)
-    //    {
-    //        return new Window(new AppShell());
-    //    }
-    //}
+namespace TownBites.CustomerApp
+{
     public partial class App : Application
     {
-        public App()
+        //public App(LoginPage loginPage)
+        //{
+        //    InitializeComponent();
+
+        //    MainPage = new NavigationPage(loginPage);
+        //}
+        public App(AppShell appShell)
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            MainPage = appShell;
         }
     }
 }
+

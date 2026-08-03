@@ -1,10 +1,12 @@
-﻿namespace TownBites.CustomerApp
+﻿namespace TownBites.CustomerApp;
+
+public partial class AppShell : Shell
 {
-    public partial class AppShell : Shell
+    public AppShell()
     {
-        public AppShell()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+
+        Routing.RegisterRoute(nameof(Views.Home.HomePage), typeof(Views.Home.HomePage));
+        Routing.RegisterRoute(nameof(Views.LoginPage), typeof(Views.LoginPage));
     }
 }

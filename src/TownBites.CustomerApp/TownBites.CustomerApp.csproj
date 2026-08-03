@@ -71,23 +71,26 @@
 
 	<ItemGroup>
 	  <Folder Include="Styles\" />
-	  <Folder Include="Interfaces\" />
-	  <Folder Include="ViewModels\" />
-	  <Folder Include="Helpers\" />
 	  <Folder Include="Converters\" />
 	  <Folder Include="Controls\" />
-	  <Folder Include="Services\" />
-	  <Folder Include="Models\" />
 	  <Folder Include="Views\Restaurants\" />
 	  <Folder Include="Views\Menu\" />
 	  <Folder Include="Views\Cart\" />
 	  <Folder Include="Views\Orders\" />
 	  <Folder Include="Views\Profile\" />
-	  <Folder Include="Views\Home\" />
 	  <Folder Include="Views\Login\" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\Home\HomePage.xaml.cs">
+	    <DependentUpon>HomePage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\Home\HomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -1,24 +1,42 @@
-<?xml version="1.0" encoding="utf-8" ?>
-
 <ContentPage
-    x:Class="TownBites.CustomerApp.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewModels="clr-namespace:TownBites.CustomerApp.ViewModels"
+    x:Class="TownBites.CustomerApp.Views.LoginPage"
+    x:DataType="viewModels:LoginViewModel"
+    Title="Login">
 
-    <VerticalStackLayout
-        Padding="30"
-        VerticalOptions="Center">
+    <ScrollView>
 
-        <Label
-            Text="Welcome to TownBites"
-            FontSize="30"
-            HorizontalOptions="Center" />
+        <VerticalStackLayout
+            Padding="30"
+            Spacing="20">
 
-        <Label
-            Text="Login Screen"
-            FontSize="18"
-            HorizontalOptions="Center" />
+            <Label
+                Text="TownBites"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalOptions="Center" />
 
-    </VerticalStackLayout>
+            <Entry
+                Placeholder="Email"
+                Text="{Binding Email}" />
+
+            <Entry
+                Placeholder="Password"
+                IsPassword="True"
+                Text="{Binding Password}" />
+
+            <Button
+                Text="Login"
+                Command="{Binding LoginCommand}" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+
+    </ScrollView>
 
 </ContentPage>
