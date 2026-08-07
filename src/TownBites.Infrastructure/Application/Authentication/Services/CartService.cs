@@ -188,8 +188,8 @@ public class CartService : ICartService
             //{
                 var order = new Order
                 {
-                    UserId = userId,
-                    OrderedOn = DateTime.UtcNow,
+                    CustomerId = userId,
+                    CreatedOn = DateTime.UtcNow,
                     Status = OrderStatus.Pending,
                     TotalAmount = 0,
                     RestaurantId = cart.Items.First().MenuItem.Category.RestaurantId
@@ -208,7 +208,7 @@ public class CartService : ICartService
                         order.Items.Add(new OrderItem
                         {
                             MenuItemId = cartItem.MenuItemId,
-                            ItemName = cartItem.MenuItem.Name,
+                            MenuItemName = cartItem.MenuItem.Name,
                             Quantity = cartItem.Quantity,
                             UnitPrice = cartItem.UnitPrice,
                             TotalPrice = total,
@@ -272,8 +272,8 @@ public class CartService : ICartService
             {
                 var order = new Order
                 {
-                    UserId = userId,
-                    OrderedOn = DateTime.UtcNow,
+                    CustomerId = userId,
+                    CreatedOn = DateTime.UtcNow,
                     Status = OrderStatus.Pending,
                     TotalAmount = 0,
                     RestaurantId = restaurantId
@@ -292,7 +292,7 @@ public class CartService : ICartService
                         order.Items.Add(new OrderItem
                         {
                             MenuItemId = cartItem.MenuItemId,
-                            ItemName = cartItem.MenuItem.Name,
+                            MenuItemName = cartItem.MenuItem.Name,
                             Quantity = cartItem.Quantity,
                             UnitPrice = cartItem.UnitPrice,
                             TotalPrice = total,

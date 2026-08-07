@@ -1,0 +1,42 @@
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="TownBites.CustomerApp.Views.Checkout.CheckoutPage"
+    Title="Checkout">
+
+    <ScrollView>
+
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="15">
+
+            <Label
+                Text="Delivery Address"
+                FontAttributes="Bold"/>
+
+            <Editor
+                HeightRequest="120"
+                Text="{Binding DeliveryAddress}" />
+
+            <Label
+                Text="Payment Method"
+                FontAttributes="Bold"/>
+
+            <Picker
+                ItemsSource="{Binding PaymentMethods}"
+                SelectedItem="{Binding SelectedPaymentMethod}" />
+
+            <Label
+                Text="{Binding GrandTotal,StringFormat='Total : ₹{0:F2}'}"
+                FontSize="20"
+                FontAttributes="Bold"/>
+
+            <Button
+                Text="Place Order"
+                Command="{Binding PlaceOrderCommand}" />
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentPage>

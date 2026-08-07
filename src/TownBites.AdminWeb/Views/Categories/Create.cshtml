@@ -1,4 +1,5 @@
-﻿@model TownBites.AdminWeb.Models.Category.CreateCategoryRequest
+﻿@* @model TownBites.Application.Requests.CreateCategoryRequest *@
+@model TownBites.Shared.Contracts.Requests.CategoryRequest
 @{
     ViewData["Title"] = "Create Category";
 }
@@ -8,11 +9,11 @@
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
     <partial name="_CategoryForm" model="Model" />
-    <button class="btn btn-success"> Save </button>
+   @*  <button class="btn btn-success"> Save </button>
 
-    <a asp-action="Index" class="btn btn-secondary"> Cancel </a>
+    <a asp-action="Index" class="btn btn-secondary"> Cancel </a> *@
 </form>
 
-@section Scripts {
+@* @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+} *@

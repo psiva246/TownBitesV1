@@ -1,0 +1,218 @@
+﻿@page "/orders/processing"
+
+@using TownBites.Shared.Enums
+@using TownBites.Shared.Contracts.Responses
+@using TownBites.Shared.Models
+@using Microsoft.AspNetCore.Components.Forms
+@using TownBites.AdminWeb.Interfaces
+
+
+@inject IOrderApiService OrderService
+@inject NavigationManager Navigation
+
+<PageTitle>Order Processing</PageTitle>
+
+<h3 class="mb-4">
+    Order Processing
+</h3>
+
+<div class="mb-3">
+
+    <button class="btn btn-primary"
+            @onclick="LoadOrders">
+
+        <i class="bi bi-arrow-clockwise"></i>
+        Refresh
+
+    </button>
+
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center mt-5">
+
+        <div class="spinner-border text-primary"></div>
+
+    </div>
+}
+else if (Orders.Count == 0)
+{
+    <div class="alert alert-info">
+
+        No active orders found.
+
+    </div>
+}
+else
+{
+    <table class="table table-striped table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Order No</th>
+
+                <th>Customer</th>
+
+                <th>Total</th>
+
+                <th>Status</th>
+
+                <th style="width:220px;">Update</th>
+
+                <th></th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @foreach (var order in Orders)
+            {
+                <tr>
+
+                    <td>
+
+                        @order.OrderNumber
+
+                    </td>
+
+                    <td>
+
+                        @order.CustomerName
+
+                    </td>
+
+                    <td>
+
+                        ₹@order.TotalAmount
+
+                    </td>
+
+                    <td>
+
+                        <span class="@GetStatusClass(order.Status)">
+
+                            @order.Status
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="order.Status">
+
+                            @foreach (var status in Enum.GetValues<OrderStatus>())
+                            {
+                                @* if (OrderStatusTransitions.CanTransition(order.Status, status)
+                                    || status == order.Status) *@
+                                {
+                                    <option value="@status">
+
+                                        @status
+
+                                    </option>
+                                }
+                            }
+
+                        </InputSelect>
+
+                    </td>
+
+                    <td>
+
+                        <button class="btn btn-success btn-sm me-2"
+                                @onclick="() => Save(order)">
+
+                            Save
+
+                        </button>
+
+                        <button class="btn btn-outline-primary btn-sm"
+                                @onclick="() => View(order.Id)">
+
+                            Details
+
+                        </button>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+
+@code
+{
+    private bool isLoading;
+
+    private List<OrderDto> Orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+
+        var response = await OrderService.GetPendingOrdersAsync();
+
+        if (response.Success)
+        {
+            //Orders = response.Data ?? new();
+        }
+
+        isLoading = false;
+    }
+
+    private async Task Save(OrderDto order)
+    {
+        // var response = await OrderService.UpdateOrderStatusAsync(
+        //     order.Id,
+        //     order.Status);
+
+        // if (response.Success)
+        // {
+            await LoadOrders();
+        //}
+    }
+
+    private void View(int id)
+    {
+        Navigation.NavigateTo($"/orders/details/{id}");
+    }
+
+    private string GetStatusClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "badge bg-warning text-dark",
+
+            OrderStatus.Accepted => "badge bg-info",
+
+            OrderStatus.Preparing => "badge bg-primary",
+
+            OrderStatus.Ready => "badge bg-secondary",
+
+            OrderStatus.OutForDelivery => "badge bg-dark",
+
+            OrderStatus.Delivered => "badge bg-success",
+
+            OrderStatus.Cancelled => "badge bg-danger",
+
+            OrderStatus.Rejected => "badge bg-danger",
+
+            _ => "badge bg-light text-dark"
+        };
+    }
+}

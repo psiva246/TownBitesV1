@@ -1,13 +1,15 @@
-﻿using Azure.Core;
+﻿using AutoMapper;
+using Azure.Core;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using TownBites.Application.Common;
 using TownBites.Domain.Entities;
 using TownBites.Infrastructure.Data;
 using TownBites.Infrastructure.Interfaces;
+using TownBites.Shared.Common;
 using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
 using TownBites.Shared.Enums;
-using TownBites.Shared.Helpers;
-using AutoMapper;
 
 namespace TownBites.Infrastructure.Application.Authentication.Services
 {
@@ -28,19 +30,19 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                 .AsNoTracking()
                 .Include(x => x.Items)
                 .Where(x => x.Status == OrderStatus.Pending)
-                .OrderBy(x => x.OrderedOn)
+                .OrderBy(x => x.CreatedOn)
                 .Select(x => new OrderResponse
                 {
                     Id = x.Id,
-                    UserId = x.UserId,
+                    UserId = x.CustomerId,
                     TotalAmount = x.TotalAmount,
                     Status = x.Status,
-                    OrderedOn = x.OrderedOn,
+                    OrderedOn = x.CreatedOn,
 
                     Items = x.Items.Select(i => new OrderItemResponse
                     {
                         MenuItemId = i.MenuItemId,
-                        ItemName = i.ItemName,
+                        ItemName = i.MenuItemName,
                         Quantity = i.Quantity,
                         UnitPrice = i.UnitPrice,
                         TotalPrice = i.TotalPrice
@@ -58,15 +60,15 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                 .Select(x => new OrderResponse
                 {
                     Id = x.Id,
-                    UserId = x.UserId,
+                    UserId = x.CustomerId,
                     TotalAmount = x.TotalAmount,
                     Status = x.Status,
-                    OrderedOn = x.OrderedOn,
+                    OrderedOn = x.CreatedOn,
 
                     Items = x.Items.Select(i => new OrderItemResponse
                     {
                         MenuItemId = i.MenuItemId,
-                        ItemName = i.ItemName,
+                        ItemName = i.MenuItemName,
                         Quantity = i.Quantity,
                         UnitPrice = i.UnitPrice,
                         TotalPrice = i.TotalPrice
@@ -83,18 +85,51 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
             if (order == null)
                 return false;
 
-            if (!OrderStatusTransitions.Allowed.TryGetValue(order.Status, out var allowed) || !allowed.Contains(status))
-            {
-                throw new InvalidOperationException($"Cannot change order from {order.Status} to {status}.");
-            }
+            //if (!OrderStatusTransitions.GetAllowedTransitions.pending.TryGetValue(order.Status, out var allowed) || !allowed.Contains(status))
+            //{
+            //    throw new InvalidOperationException($"Cannot change order from {order.Status} to {status}.");
+            //}
 
             order.Status = status;
-
+            //await _hubContext.Clients.Group($"order-{order.Id}").SendAsync("OrderStatusChanged", order.Status);
             await _dbContext.SaveChangesAsync();
 
             return true;
         }
+        public async Task<ApiResponse<bool>> UpdateOrderStatusAsync(int orderId, OrderStatus newStatus)
+        {
+            var order = await _dbContext.Orders.FindAsync(orderId);
 
+            if (order == null)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Order not found"
+                };
+            }
+
+            if (!OrderStatusTransitions.CanTransition(order.Status, newStatus))
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Cannot change order status from {order.Status} to {newStatus}."
+                };
+            }
+
+            order.Status = newStatus;
+            order.UpdatedOn = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new ApiResponse<bool>
+            {
+                Success = true,
+                Message = "Order status updated successfully.",
+                Data = true
+            };
+        }
         public async Task<List<OrderResponse>> GetCustomerOrdersAsync(int userId)
         {
             try
@@ -105,7 +140,7 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                     var list = await _dbContext.Orders
                         //.AsNoTracking()
                         //.Include(o => o.Items)
-                        .Where(o => o.UserId == userId)
+                        .Where(o => o.CustomerId == userId)
                         //.OrderByDescending(o => o.OrderedOn)
                         .ToListAsync();
                 }
@@ -116,21 +151,21 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                 return await _dbContext.Orders
                     .AsNoTracking()
                     .Include(o => o.Items)
-                    .Where(o => o.UserId == userId)
-                    .OrderByDescending(o => o.OrderedOn)
+                    .Where(o => o.CustomerId == userId)
+                    .OrderByDescending(o => o.CreatedOn)
                     .Select(o => new OrderResponse
                     {
                         Id = o.Id,
-                        UserId = o.UserId,
+                        UserId = o.CustomerId,
                         RestaurantId = o.RestaurantId,
                         TotalAmount = o.TotalAmount,
                         Status = o.Status,
-                        OrderedOn = o.OrderedOn,
+                        OrderedOn = o.CreatedOn,
 
                         Items = o.Items.Select(i => new OrderItemResponse
                         {
                             MenuItemId = i.MenuItemId,
-                            ItemName = i.ItemName,
+                            ItemName = i.MenuItemName,
                             Quantity = i.Quantity,
                             UnitPrice = i.UnitPrice,
                             TotalPrice = i.TotalPrice
@@ -151,20 +186,20 @@ namespace TownBites.Infrastructure.Application.Authentication.Services
                 .AsNoTracking()
                 .Include(o => o.Items)
                 .Where(o => o.Id == orderId &&
-                            o.UserId == userId)
+                            o.CustomerId == userId)
                 .Select(o => new OrderResponse
                 {
                     Id = o.Id,
-                    UserId = o.UserId,
+                    UserId = o.CustomerId,
                     RestaurantId = o.RestaurantId,
                     TotalAmount = o.TotalAmount,
                     Status = o.Status,
-                    OrderedOn = o.OrderedOn,
+                    OrderedOn = o.CreatedOn,
 
                     Items = o.Items.Select(i => new OrderItemResponse
                     {
                         MenuItemId = i.MenuItemId,
-                        ItemName = i.ItemName,
+                        ItemName = i.MenuItemName,
                         Quantity = i.Quantity,
                         UnitPrice = i.UnitPrice,
                         TotalPrice = i.TotalPrice

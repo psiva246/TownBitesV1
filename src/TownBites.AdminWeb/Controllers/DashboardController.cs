@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using TownBites.AdminWeb.Interfaces;
 using TownBites.AdminWeb.Models.Dashboard;
+using TownBites.AdminWeb.Services;
+using TownBites.AdminWeb.ViewModels.Dashboard;
 
 namespace TownBites.AdminWeb.Controllers;
 
@@ -19,6 +21,12 @@ public class DashboardController : Controller
     {
         var dashboard = await _dashboardApiService.GetDashboardAsync();
 
-        return View(dashboard);
+        DashboardViewModel dashboardView = new DashboardViewModel(_dashboardApiService) 
+                        { CompletedOrders = dashboard.CompletedOrders, PendingOrders = dashboard.PendingOrders //, TotalRevenue = dashboard.TotalRevenue
+            , RecentOrders = dashboard.RecentOrders, TodayOrders = dashboard.TodayOrders, TodayRevenue = dashboard.TodayRevenue
+            //, TopSellingItems = dashboard.TopSellingItems
+            , StatusChart = dashboard.StatusChart, RevenueChart = dashboard.RevenueChart,  };
+
+        return View(dashboardView);
     }
 }

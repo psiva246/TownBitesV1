@@ -1,0 +1,45 @@
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewModels="clr-namespace:TownBites.CustomerApp.ViewModels"
+    x:Class="TownBites.CustomerApp.Views.Restaurants.RestaurantsPage">
+
+    <CollectionView ItemsSource="{Binding Restaurants}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+
+                <Frame Margin="10"
+                   Padding="10"
+                   BorderColor="LightGray">
+
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                          Path=BindingContext.OpenRestaurantCommand}"
+                        CommandParameter="{Binding .}" />
+                    </Frame.GestureRecognizers>
+
+                    <VerticalStackLayout>
+
+                        <Label
+                        Text="{Binding Name}"
+                        FontSize="20"
+                        FontAttributes="Bold"/>
+
+                        <Label Text="{Binding Address}" />
+
+                        <Label Text="{Binding PhoneNumber}" />
+
+                    </VerticalStackLayout>
+
+                </Frame>
+
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+
+    <!--<TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                      Path=BindingContext.OpenRestaurantCommand}"
+    CommandParameter="{Binding}" />-->
+
+</ContentPage>

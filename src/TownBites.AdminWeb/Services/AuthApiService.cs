@@ -13,13 +13,11 @@ namespace TownBites.AdminWeb.Services;
 public class AuthApiService : IAuthApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly ApiSettings _apiSettings;
 
     public AuthApiService(HttpClient httpClient, IOptions<ApiSettings> apiOptions)
     {
         _httpClient = httpClient;
-        _apiSettings = apiOptions.Value;
-        _httpClient.BaseAddress = new Uri(_apiSettings.BaseUrl);
+        _httpClient.BaseAddress = new Uri(apiOptions.Value.BaseUrl);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginViewModel model)

@@ -5,16 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TownBites.Shared.Enums
-{    
+{
     public enum OrderStatus
     {
         Pending = 1,
         Accepted = 2,
         Preparing = 3,
         Ready = 4,
-        PickedUp = 5,
+        OutForDelivery = 5,
         Delivered = 6,
-        Cancelled = 7
+        Cancelled = 7,
+        Rejected = 8
     }
     public enum UserRole
     {

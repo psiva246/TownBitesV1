@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Storage;
+using TownBites.CustomerApp.Helpers;
 using TownBites.CustomerApp.Interfaces;
 using TownBites.CustomerApp.Models;
-using Microsoft.Maui.Storage;
 
 namespace TownBites.CustomerApp.ViewModels;
 
@@ -10,9 +11,9 @@ public partial class LoginViewModel : ObservableObject
 {
     private readonly IAuthApiService _authApiService;
     [ObservableProperty]
-    private string email = string.Empty;
+    private string email = "testuser1@gmail.com"; // string.Empty;
     [ObservableProperty]
-    private string password = string.Empty;
+    private string password = "Password@001"; // string.Empty;
     [ObservableProperty]
     private bool isBusy;
 
@@ -44,15 +45,12 @@ public partial class LoginViewModel : ObservableObject
             }
             if (!string.IsNullOrWhiteSpace(response.token))
             {
-                Preferences.Default.Set("jwt", response.token);
+                PreferencesHelper.SaveToken(response.token);
             }
 
             //await Shell.Current.DisplayAlert( "Success", "Login Successful", "OK");
 
-            // Navigation comes next commit
-            Preferences.Default.Set("jwt", response.token);
-
-            await Shell.Current.GoToAsync("//Home");
+            await Shell.Current.GoToAsync("//Restaurants");
         }
         catch (Exception ex)
         {

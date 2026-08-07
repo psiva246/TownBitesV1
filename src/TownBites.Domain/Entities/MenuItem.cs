@@ -2,6 +2,7 @@
 
 public class MenuItem : BaseEntity
 {
+    public int RestaurantId { get; set;  }
     public int CategoryId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

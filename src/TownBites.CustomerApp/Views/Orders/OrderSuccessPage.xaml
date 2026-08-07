@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="TownBites.CustomerApp.Views.Orders.OrderSuccessPage"
+    Title="Order Success">
+
+    <VerticalStackLayout
+        Padding="30"
+        Spacing="20"
+        VerticalOptions="Center">
+
+        <Label
+            Text="🎉"
+            FontSize="70"
+            HorizontalOptions="Center"/>
+
+        <Label
+            Text="Order Placed Successfully"
+            FontSize="26"
+            FontAttributes="Bold"
+            HorizontalOptions="Center"/>
+
+        <Label
+            Text="{Binding OrderMessage}"
+            HorizontalOptions="Center"
+            HorizontalTextAlignment="Center"/>
+
+        <Label
+            Text="{Binding EstimatedTime}"
+            FontAttributes="Bold"
+            FontSize="18"
+            HorizontalOptions="Center"/>
+
+        <Button
+            Text="Continue Shopping"
+            Command="{Binding ContinueShoppingCommand}"/>
+
+        <Button
+            Text="My Orders"
+            Command="{Binding ViewOrdersCommand}"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>

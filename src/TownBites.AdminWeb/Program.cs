@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using TownBites.AdminWeb.Interfaces;
 using TownBites.AdminWeb.Models;
 using TownBites.AdminWeb.Services;
+using TownBites.Application.Interfaces;
+using TownBites.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +26,14 @@ builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient<IAuthApiService, AuthApiService>();
 builder.Services.AddHttpClient<ICategoryApiService, CategoryApiService>();
+builder.Services.AddHttpClient<ICategoryService, CategoryService>();
 builder.Services.AddHttpClient<IUploadApiService, UploadApiService>();
 builder.Services.AddHttpClient<IMenuItemApiService, MenuItemApiService>();
 builder.Services.AddHttpClient<IFileApiService, FileApiService>();
 builder.Services.AddHttpClient<IDashboardApiService, DashboardApiService>();
+builder.Services.AddScoped<ICustomerApiService, CustomerApiService>();
+builder.Services.AddScoped<CustomerViewModel>();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 var app = builder.Build();
 

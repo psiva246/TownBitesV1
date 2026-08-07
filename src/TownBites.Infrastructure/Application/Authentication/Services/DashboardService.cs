@@ -23,18 +23,18 @@ public class DashboardService : IDashboardService
             .Where(x => x.RestaurantId == restaurantId);
 
         var todayOrders = await orders
-            .Where(x => x.OrderedOn.Date == today)
+            .Where(x => x.CreatedOn == today)
             .ToListAsync();
 
         var recentOrders = await orders
-            .OrderByDescending(x => x.OrderedOn)
+            .OrderByDescending(x => x.CreatedOn)
             .Take(10)
             .Select(x => new OrderResponse
             {
                 Id = x.Id,
-                UserId = x.UserId,
+                UserId = x.CustomerId,
                 RestaurantId = x.RestaurantId,
-                OrderedOn = x.OrderedOn,
+                OrderedOn = x.CreatedOn,
                 Status = x.Status,
                 TotalAmount = x.TotalAmount
             })
@@ -42,7 +42,7 @@ public class DashboardService : IDashboardService
 
         var topSellingItems = await _dbContext.OrderItems
             .Where(x => x.Order.RestaurantId == restaurantId)
-            .GroupBy(x => x.MenuItem.Name)
+            .GroupBy(x => x.MenuItemName)
             .Select(g => new TopSellingItemResponse
             {
                 Name = g.Key,
@@ -64,8 +64,8 @@ public class DashboardService : IDashboardService
         //    .ToListAsync();
 
         var revenueData = await orders
-            .Where(x => x.OrderedOn >= DateTime.Today.AddDays(-6))
-            .GroupBy(x => x.OrderedOn.Date)
+            .Where(x => x.CreatedOn >= DateTime.Today.AddDays(-6))
+            .GroupBy(x => x.CreatedOn.Date)
             .Select(g => new
             {
                 Date = g.Key,

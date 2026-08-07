@@ -3,8 +3,10 @@
 public class DashboardResponse
 {    public int TodayOrders { get; set; }
     public int PendingOrders { get; set; }
+    public int PreparingOrders { get; set; }
     public int CompletedOrders { get; set; }
     public decimal TodayRevenue { get; set; }
+    public decimal TotalRevenue { get; set; }
     public List<OrderResponse> RecentOrders { get; set; } = new();
     public List<TopSellingItemResponse> TopSellingItems { get; set; } = new();
     public List<RevenueChartResponse> RevenueChart { get; set; } = new();

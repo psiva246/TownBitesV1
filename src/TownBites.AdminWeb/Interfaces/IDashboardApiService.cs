@@ -2,11 +2,12 @@
 using TownBites.AdminWeb.Models.Dashboard;
 using TownBites.AdminWeb.ViewModels;
 using TownBites.AdminWeb.ViewModels.Dashboard;
+using TownBites.Shared.Contracts.Responses;
 
 namespace TownBites.AdminWeb.Interfaces;
 
 public interface IDashboardApiService
 {
-    //Task<DashboardDto> GetDashboardAsync();
-    Task<DashboardViewModel> GetDashboardAsync();
+    //Task<DashboardViewModel> GetDashboardAsync();
+    Task<DashboardResponse?> GetDashboardAsync();
 }

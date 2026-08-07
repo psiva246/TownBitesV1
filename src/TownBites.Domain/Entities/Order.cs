@@ -4,11 +4,26 @@ namespace TownBites.Domain.Entities;
 
 public class Order : BaseEntity
 {
-    public int UserId { get; set; }
+    public int Id { get; set; }
+
     public int RestaurantId { get; set; }
+
+    public int CustomerId { get; set; }
+
+    public decimal SubTotal { get; set; }
+
+    public decimal TaxAmount { get; set; }
+
+    public decimal DiscountAmount { get; set; }
+
+    public decimal DeliveryCharge { get; set; }
+
     public decimal TotalAmount { get; set; }
-    public OrderStatus Status { get; set; }
-    public DateTime OrderedOn { get; set; }    
-    public Restaurant Restaurant { get; set; } = null!;
+
+    public string PaymentMethod { get; set; } = "";
+
+    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public DateTime OrderDate { get; set; }
+    public DateTime CreatedOn { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }

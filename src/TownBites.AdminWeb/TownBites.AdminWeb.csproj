@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.11" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -14,9 +15,13 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="NewFolder\" />
+    <Folder Include="ViewModels\NewFolder\" />
+    <Folder Include="Views\Payment\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TownBites.Application\TownBites.Application.csproj" />
     <ProjectReference Include="..\TownBites.Shared\TownBites.Shared.csproj" />
   </ItemGroup>
 

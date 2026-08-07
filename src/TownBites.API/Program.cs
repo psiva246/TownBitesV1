@@ -15,6 +15,10 @@ using TownBites.Infrastructure.Mappings;
 using TownBites.Infrastructure.Services;
 using TownBites.Shared.Configurations;
 using TownBites.Shared.Options;
+using TownBites.Application.Interfaces;
+using TownBites.Application.Services;
+using AutoMapper;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
@@ -90,10 +94,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IMenuItemService, MenuItemService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<TownBites.Infrastructure.Interfaces.ICategoryService, TownBites.Infrastructure.Services.CategoryService>();
+builder.Services.AddScoped<TownBites.Application.Interfaces.ICategoryService, TownBites.Application.Services.CategoryService>();
+builder.Services.AddScoped<TownBites.Infrastructure.Interfaces.IMenuItemService, TownBites.Infrastructure.Services.MenuItemService>();
+builder.Services.AddScoped<TownBites.Application.Interfaces.IMenuItemService, TownBites.Application.Services.MenuItemService>();
+builder.Services.AddScoped<TownBites.Infrastructure.Interfaces.IOrderService, TownBites.Infrastructure.Application.Authentication.Services.OrderService>();
+builder.Services.AddScoped<TownBites.Application.Interfaces.IOrderService, TownBites.Application.Services.OrderService>();
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+//builder.Services.AddScoped<IMapper, Mapper>();
 builder.Services.AddSignalR();
 //builder.Services.AddAutoMapper(typeof(Program));
 //builder.Services.AddAutoMapper(typeof(MappingProfile));

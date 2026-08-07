@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Categories\" />
+    <Folder Include="Features\Menu\" />
+    <Folder Include="Features\Customers\" />
+    <Folder Include="Features\Dashboard\" />
+    <Folder Include="Features\Reports\" />
+    <Folder Include="Features\Restaurants\" />
+    <Folder Include="Features\Authentication\" />
+    <Folder Include="Features\Orders\Queries\" />
+    <Folder Include="Common\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="Validators\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TownBites.Domain\TownBites.Domain.csproj" />
+    <ProjectReference Include="..\TownBites.Infrastructure\TownBites.Infrastructure.csproj" />
+    <ProjectReference Include="..\TownBites.Shared\TownBites.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

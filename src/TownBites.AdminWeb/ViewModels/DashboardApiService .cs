@@ -3,6 +3,7 @@ using TownBites.AdminWeb.Interfaces;
 using TownBites.AdminWeb.Models;
 using TownBites.AdminWeb.Models.Dashboard;
 using TownBites.AdminWeb.ViewModels.Dashboard;
+using TownBites.Shared.Contracts.Responses;
 
 namespace TownBites.AdminWeb.Services;
 
@@ -14,14 +15,17 @@ public class DashboardApiService : BaseApiService, IDashboardApiService
         httpClient.BaseAddress = new Uri(options.Value.BaseUrl);
     }
 
-    //public async Task<DashboardDto> GetDashboardAsync()
+    //public async Task<DashboardViewModel> GetDashboardAsync()
     //{
-    //    return await GetAsync<DashboardDto>("api/dashboard");
-    //}
-    public async Task<DashboardViewModel> GetDashboardAsync()
-    {
-        var response = await GetAsync<DashboardViewModel>("api/dashboard"); 
+    //    var response = await GetAsync<DashboardViewModel>("api/dashboard"); 
 
-        return response ?? new DashboardViewModel();
+    //    return response ?? new DashboardViewModel();
+    //}
+
+    public async Task<DashboardResponse> GetDashboardAsync()
+    {
+        var response = await GetAsync<DashboardResponse>("api/dashboard");
+
+        return response ?? new DashboardResponse();
     }
 }

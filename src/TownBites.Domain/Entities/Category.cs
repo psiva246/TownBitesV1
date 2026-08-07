@@ -5,15 +5,15 @@
 /// </summary>
 public class Category : BaseEntity
 {
+    public int Id { get; set; }
     public int RestaurantId { get; set; }
-
     public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public bool IsActive { get; set; }
 
     public int DisplayOrder { get; set; }
-
     // Navigation Property
     public Restaurant Restaurant { get; set; } = null!;
     public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
-
 }
 

@@ -1,0 +1,83 @@
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="TownBites.CustomerApp.Views.Cart.CartPage"
+    Title="My Cart">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <CollectionView ItemsSource="{Binding CartItems}">
+            <CollectionView.ItemTemplate>
+
+                <DataTemplate>
+
+                    <Frame Margin="10">
+
+                        <VerticalStackLayout>
+
+                            <Label
+                                Text="{Binding MenuItemName}"
+                                FontSize="18"
+                                FontAttributes="Bold"/>
+
+                            <Label
+                                Text="{Binding Price,StringFormat='₹{0:F2}'}"/>
+
+                            <HorizontalStackLayout
+                                Spacing="15"
+                                Margin="0,10,0,0">
+
+                                <Button
+                                    Text="-"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                      Path=BindingContext.DecreaseQuantityCommand}"
+                                    CommandParameter="{Binding}" />
+
+                                <Label
+                                    Text="{Binding Quantity}"
+                                    VerticalOptions="Center"/>
+
+                                <Button
+                                    Text="+"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                      Path=BindingContext.IncreaseQuantityCommand}"
+                                    CommandParameter="{Binding}" />
+
+                                <Button
+                                    Text="Remove"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                      Path=BindingContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding}" />
+
+                            </HorizontalStackLayout>
+
+                        </VerticalStackLayout>
+
+                    </Frame>
+
+                </DataTemplate>
+
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+        <Grid
+            Grid.Row="1"
+            Padding="15"
+            ColumnDefinitions="*,Auto">
+
+            <Label
+                Text="{Binding GrandTotal,StringFormat='Grand Total : ₹{0:F2}'}"
+                FontSize="18"
+                FontAttributes="Bold"/>
+
+            <Button
+                Grid.Column="1"
+                Text="Checkout"
+                Command="{Binding CheckoutCommand}" />
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

@@ -1,122 +1,126 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TownBites.Domain.Entities;
+﻿//using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc;
+//using TownBites.Application.DTOs;
+//using TownBites.Application.Interfaces;
+//using TownBites.Domain.Entities;
+//using TownBites.Shared.Contracts.Responses;
+
+//using TownBites.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TownBites.Infrastructure.Interfaces;
-using TownBites.Shared.Common;
-using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
+using TownBites.API.Helpers;
+using TownBites.Application.DTOs;
+using TownBites.Application.Interfaces;
+using TownBites.Application.Requests;
 
-namespace TownBites.API.Controllers;
-
-[ApiController]
-[Route("api")]
-public class CategoriesController : ControllerBase
+namespace TownBites.API.Controllers
 {
-    private readonly ICategoryService _categoryService;
-
-    public CategoriesController(ICategoryService categoryService)
+    [ApiController]
+    [Route("api/[controller]")]
+    //[Authorize]
+    public class CategoriesController : ControllerBase
     {
-        _categoryService = categoryService;
-    }
+        private readonly TownBites.Infrastructure.Interfaces.ICategoryService _categoryService;
+        private readonly TownBites.Application.Interfaces.ICategoryService _applicationCategoryService;
 
-    /// <summary>
-    /// Create a category for a restaurant.
-    /// </summary>
-    [HttpPost("restaurants/{restaurantId:int}/categories")]
-    public async Task<IActionResult> Create(
-        int restaurantId,
-        [FromBody] CreateCategoryRequest request)
-    {
-        if (!ModelState.IsValid)
+        public CategoriesController(TownBites.Infrastructure.Interfaces.ICategoryService categoryService, TownBites.Application.Interfaces.ICategoryService applicationCategoryService)
         {
-            return BadRequest(ApiResponse<object>.Fail("Validation failed."));
+            _categoryService = categoryService;
+            _applicationCategoryService = applicationCategoryService;
         }
 
-        try
+        /// <summary>
+        /// Get all categories
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var category = await _categoryService.CreateAsync(restaurantId, request);
+            var restaurantId = 2; // int.Parse(User.FindFirst("RestaurantId")?.Value);
+            //var result1 = await _applicationCategoryService.GetAllAsync(restaurantId);
 
-            return Ok(ApiResponse<CategoryResponse>.Ok(
-                ToResponse(category),
-                "Category created successfully."));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<object>.Fail(ex.Message));
-        }
-    }
+            var result = await _categoryService.GetAllAsync(restaurantId);
 
-    /// <summary>
-    /// Get all categories for a restaurant.
-    /// </summary>
-    [HttpGet("restaurants/{restaurantId:int}/categories")]
-    public async Task<IActionResult> GetByRestaurant(int restaurantId)
-    {
-        var categories = await _categoryService.GetByRestaurantAsync(restaurantId);
-
-        var response = categories
-            .Select(ToResponse)
-            .OrderBy(c => c.DisplayOrder)
-            .ThenBy(c => c.Name)
-            .ToList();
-
-        return Ok(ApiResponse<IEnumerable<CategoryResponse>>.Ok(response));
-    }
-
-    /// <summary>
-    /// Update a category.
-    /// </summary>
-    [HttpPut("categories/{id:int}")]
-    public async Task<IActionResult> Update(
-        int id,
-        [FromBody] UpdateCategoryRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ApiResponse<object>.Fail("Validation failed."));
+            //return Ok(new ApiResponse<IEnumerable<CategoryDto>>
+            //{
+            //    Success = true,
+            //    Message = "Categories loaded successfully.",
+            //    Data = result
+            //});
+            return Ok(result);
         }
 
-        var category = await _categoryService.UpdateAsync(id, request);
-
-        if (category == null)
+        /// <summary>
+        /// Get category by Id
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            return NotFound(ApiResponse<object>.Fail("Category not found."));
+            var result = await _applicationCategoryService.GetByIdAsync(id);
+
+            if (!result.Success)
+                return NotFound(result);
+
+            return Ok(result);
         }
 
-        return Ok(ApiResponse<CategoryResponse>.Ok(
-            ToResponse(category),
-            "Category updated successfully."));
-    }
-
-    /// <summary>
-    /// Deactivate a category.
-    /// </summary>
-    [HttpDelete("categories/{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var success = await _categoryService.DeactivateAsync(id);
-
-        if (!success)
+        /// <summary>
+        /// Create category
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateCategoryRequest request)
         {
-            return NotFound(ApiResponse<object>.Fail("Category not found."));
+            TownBites.Application.Requests.CreateCategoryRequest createReq = new TownBites.Application.Requests.CreateCategoryRequest()
+            {
+                Description = request.Description, //DisplayOrder = request.DisplayOrder,
+                IsActive = request.IsActive,
+                Name = request.Name,
+                RestaurantId = request.RestaurantId
+            };
+            var result = await _applicationCategoryService.CreateAsync(createReq);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
-        return Ok(ApiResponse<object>.Ok(
-            null,
-            "Category deactivated successfully."));
-    }
-
-    /// <summary>
-    /// Maps Category entity to CategoryResponse.
-    /// </summary>
-    private static CategoryResponse ToResponse(Category category)
-    {
-        return new CategoryResponse
+        /// <summary>
+        /// Update category
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UpdateCategoryRequest request)
         {
-            Id = category.Id,
-            RestaurantId = category.RestaurantId,
-            Name = category.Name,
-            DisplayOrder = category.DisplayOrder,
-            IsActive = category.IsActive
-        };
+            TownBites.Application.Requests.UpdateCategoryRequest updateReq = new TownBites.Application.Requests.UpdateCategoryRequest()
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Description = request.Description, //DisplayOrder = request.DisplayOrder,
+                IsActive = request.IsActive,
+                DisplayOrder = request.DisplayOrder
+            };
+            var result = await _applicationCategoryService.UpdateAsync(id, updateReq);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Delete category
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _applicationCategoryService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

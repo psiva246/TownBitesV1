@@ -1,0 +1,48 @@
+﻿@page "/customers/{Id:int}"
+
+@inject CustomerDetailsViewModel VM
+
+<PageTitle>Customer Details</PageTitle>
+
+@if (VM.Customer == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card">
+
+        <div class="card-body">
+
+            <h3>@VM.Customer.Name</h3>
+
+            <hr/>
+
+            <p>Email : @VM.Customer.Email</p>
+
+            <p>Phone : @VM.Customer.PhoneNumber</p>
+
+            <p>Address : @VM.Customer.Address</p>
+
+            <p>Total Orders : @VM.Customer.TotalOrders</p>
+
+            <p>Total Spent : ₹@VM.Customer.TotalSpent</p>
+
+            <p>Last Order : @VM.Customer.LastOrderDate?.ToShortDateString()</p>
+
+        </div>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VM.Load(Id);
+    }
+
+}
