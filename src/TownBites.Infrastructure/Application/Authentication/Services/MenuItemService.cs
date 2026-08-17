@@ -2,6 +2,7 @@
 using TownBites.Domain.Entities;
 using TownBites.Infrastructure.Data;
 using TownBites.Infrastructure.Interfaces;
+using TownBites.Shared.Common;
 using TownBites.Shared.Contracts.Common;
 using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
@@ -11,135 +12,229 @@ namespace TownBites.Infrastructure.Services;
 
 public class MenuItemService : IMenuItemService
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly IAuditService _auditService;
+    private readonly ApplicationDbContext _context;
 
-    public MenuItemService(ApplicationDbContext dbContext, IAuditService auditService)
+    public MenuItemService(ApplicationDbContext context)
     {
-        _dbContext = dbContext;
-        _auditService = auditService;
+        _context = context;
     }
 
-    public async Task<MenuItem> CreateAsync(int categoryId, CreateMenuItemRequest request)
+    public async Task<ApiResponse<List<MenuItemDto>>> GetAllAsync()
     {
-        var category = await _dbContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId && x.IsActive);
-
-        if (category == null)
-            throw new Exception("Category not found.");
-
-        var menuItem = new MenuItem
-        {
-            CategoryId = categoryId,
-            Name = request.Name,
-            Description = request.Description,
-            Price = request.Price,
-            DiscountPrice = request.DiscountPrice,
-            IsVeg = request.IsVeg,
-            IsAvailable = request.IsAvailable,
-            PreparationTimeInMinutes = request.PreparationTimeInMinutes,
-            ImageUrl = request.ImageUrl,
-            IsActive = true
-        };
-
-        _dbContext.MenuItems.Add(menuItem);
-
-        await _dbContext.SaveChangesAsync();
-
-        await _auditService.LogAsync("1", "Siva", "Create", "MenuItem", menuItem.Id, null, menuItem);
-
-        return menuItem;
-    }
-
-    public async Task<List<MenuItem>> GetByCategoryAsync(int categoryId)
-    {
-        return await _dbContext.MenuItems
-            .Where(x =>
-                x.CategoryId == categoryId &&
-                x.IsActive)
+        var items = await _context.MenuItems
+            .Include(x => x.Category)
             .OrderBy(x => x.Name)
-            .ToListAsync();
-    }
-
-    public async Task<PagedResponse<MenuItemResponse>> GetAllAsync(int restaurantId, PaginationRequest request)
-    {
-        IQueryable<MenuItem> query = _dbContext.MenuItems.Where(x => x.IsActive);
-
-        if (!string.IsNullOrWhiteSpace(request.Search))
-        {
-            query = query.Where(x => x.Name.Contains(request.Search));
-        }
-
-        var total = await query.CountAsync();
-
-        var items = await query
-            .OrderBy(x => x.Name)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(x => new MenuItemResponse
+            .Select(x => new MenuItemDto
             {
                 Id = x.Id,
+                RestaurantId = x.RestaurantId,
+                CategoryId = x.CategoryId,
+                CategoryName = x.Category.Name,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                DiscountPrice = x.DiscountPrice?? 0,
+                ImageUrl = x.ImageUrl,
+                IsAvailable = x.IsAvailable,
+                IsVeg = x.IsVeg
+            })
+            .ToListAsync();
+
+        return new ApiResponse<List<MenuItemDto>>
+        {
+            Success = true,
+            Message = "Menu items retrieved successfully.",
+            Data = items
+        };
+    }
+
+    public async Task<ApiResponse<MenuItemDto>> GetByIdAsync(int id)
+    {
+        var item = await _context.MenuItems
+            .Include(x => x.Category)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item == null)
+        {
+            return new ApiResponse<MenuItemDto>
+            {
+                Success = false,
+                Message = "Menu item not found."
+            };
+        }
+
+        return new ApiResponse<MenuItemDto>
+        {
+            Success = true,
+            Message = "Menu item retrieved successfully.",
+            Data = new MenuItemDto
+            {
+                Id = item.Id,
+                RestaurantId = item.RestaurantId,
+                CategoryId = item.CategoryId,
+                CategoryName = item.Category.Name,
+                Name = item.Name,
+                Description = item.Description,
+                Price = item.Price,
+                DiscountPrice = item.DiscountPrice ?? 0,
+                existingImageUrl = item.ImageUrl,
+                ImageUrl = item.ImageUrl,
+                IsAvailable = item.IsAvailable,
+                IsVeg = item.IsVeg
+            }
+        };
+    }
+
+    public async Task<ApiResponse<List<MenuItemDto>>> GetByCategoryAsync(int categoryId)
+    {
+        var items = await _context.MenuItems
+            .Include(x => x.Category)
+            .Where(x => x.CategoryId == categoryId)
+            .Select(x => new MenuItemDto
+            {
+                Id = x.Id,
+                RestaurantId = x.RestaurantId,
+                CategoryId = x.CategoryId,
+                //CategoryName = x.Category.Name,
                 Name = x.Name,
                 Description = x.Description,
                 Price = x.Price,
                 ImageUrl = x.ImageUrl,
-                CategoryId = x.CategoryId,
                 IsAvailable = x.IsAvailable
             })
             .ToListAsync();
 
-        return new PagedResponse<MenuItemResponse>
+        return new ApiResponse<List<MenuItemDto>>
         {
-            Items = items,
-            Page = request.Page,
-            PageSize = request.PageSize,
-            TotalCount = total
+            Success = true,
+            Message = "Menu items retrieved successfully.",
+            Data = items
         };
     }
 
-    public async Task<MenuItem?> GetByIdAsync(int id)
+    public async Task<ApiResponse<List<MenuItemDto>>> GetByRestaurantAsync(int restaurantId)
     {
-        return await _dbContext.MenuItems
-            .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+        var items = await _context.MenuItems
+            .Include(x => x.Category)
+            .Where(x => x.RestaurantId == restaurantId)
+            .Select(x => new MenuItemDto
+            {
+                Id = x.Id,
+                RestaurantId = x.RestaurantId,
+                CategoryId = x.CategoryId,
+                //CategoryName = x.Category.Name,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                ImageUrl = x.ImageUrl,
+                IsAvailable = x.IsAvailable
+            })
+            .ToListAsync();
+
+        return new ApiResponse<List<MenuItemDto>>
+        {
+            Success = true,
+            Message = "Menu items retrieved successfully.",
+            Data = items
+        };
     }
 
-    public async Task<MenuItem?> UpdateAsync(int id, UpdateMenuItemRequest request)
+    public async Task<ApiResponse<MenuItemDto>> CreateAsync(CreateMenuItemRequest request)
     {
-        var menuItem = await _dbContext.MenuItems
-            .FirstOrDefaultAsync(x =>
-                x.Id == id &&
-                x.IsActive);
+        var entity = new MenuItem
+        {
+            //RestaurantId = request.RestaurantId,
+            //CategoryId = request.CategoryId,
+            Name = request.Name,
+            Description = request.Description,
+            Price = request.Price,
+            ImageUrl = request.ImageUrl,
+            IsAvailable = request.IsAvailable
+        };
 
-        if (menuItem == null)
-            return null;
+        _context.MenuItems.Add(entity);
+        await _context.SaveChangesAsync();
 
-        menuItem.Name = request.Name;
-        menuItem.Description = request.Description;
-        menuItem.Price = request.Price;
-        menuItem.DiscountPrice = request.DiscountPrice;
-        menuItem.IsVeg = request.IsVeg;
-        menuItem.IsAvailable = request.IsAvailable;
-        menuItem.PreparationTimeInMinutes = request.PreparationTimeInMinutes;
-        menuItem.ImageUrl = request.ImageUrl;
-
-        await _dbContext.SaveChangesAsync();
-
-        return menuItem;
+        return await GetByIdAsync(entity.Id);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<ApiResponse<MenuItemDto>> UpdateAsync(int id, UpdateMenuItemRequest request)
     {
-        var menuItem = await _dbContext.MenuItems
-            .FirstOrDefaultAsync(x =>
-                x.Id == id &&
-                x.IsActive);
+        var entity = await _context.MenuItems.FindAsync(id);
 
-        if (menuItem == null)
-            return false;
+        if (entity == null)
+        {
+            return new ApiResponse<MenuItemDto>
+            {
+                Success = false,
+                Message = "Menu item not found."
+            };
+        }
 
-        menuItem.IsActive = false;
+        entity.RestaurantId = request.RestaurantId;
+        entity.CategoryId = request.CategoryId;
+        entity.Name = request.Name;
+        entity.Description = request.Description;
+        entity.Price = request.Price;
+        entity.DiscountPrice = request.DiscountPrice;
+        entity.ImageUrl = request.ImageUrl ?? entity.ImageUrl;
+        entity.IsAvailable = request.IsAvailable;
+        entity.IsVeg = request.IsVeg;
 
-        await _dbContext.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
-        return true;
+        return await GetByIdAsync(id);
+    }
+
+    public async Task<ApiResponse<bool>> DeleteAsync(int id)
+    {
+        var entity = await _context.MenuItems.FindAsync(id);
+
+        if (entity == null)
+        {
+            return new ApiResponse<bool>
+            {
+                Success = false,
+                Message = "Menu item not found.",
+                Data = false
+            };
+        }
+
+        _context.MenuItems.Remove(entity);
+
+        await _context.SaveChangesAsync();
+
+        return new ApiResponse<bool>
+        {
+            Success = true,
+            Message = "Menu item deleted successfully.",
+            Data = true
+        };
+    }
+
+    public async Task<ApiResponse<bool>> ChangeAvailabilityAsync(int id, bool isAvailable)
+    {
+        var entity = await _context.MenuItems.FindAsync(id);
+
+        if (entity == null)
+        {
+            return new ApiResponse<bool>
+            {
+                Success = false,
+                Message = "Menu item not found.",
+                Data = false
+            };
+        }
+
+        entity.IsAvailable = isAvailable;
+
+        await _context.SaveChangesAsync();
+
+        return new ApiResponse<bool>
+        {
+            Success = true,
+            Message = "Availability updated successfully.",
+            Data = true
+        };
     }
 }

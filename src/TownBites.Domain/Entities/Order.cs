@@ -4,8 +4,6 @@ namespace TownBites.Domain.Entities;
 
 public class Order : BaseEntity
 {
-    public int Id { get; set; }
-
     public int RestaurantId { get; set; }
 
     public int CustomerId { get; set; }
@@ -24,6 +22,5 @@ public class Order : BaseEntity
 
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public DateTime OrderDate { get; set; }
-    public DateTime CreatedOn { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }

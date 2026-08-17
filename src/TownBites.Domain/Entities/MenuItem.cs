@@ -1,4 +1,6 @@
-﻿namespace TownBites.Domain.Entities;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace TownBites.Domain.Entities;
 
 public class MenuItem : BaseEntity
 {

@@ -34,14 +34,14 @@ public class UploadApiService : BaseApiService, IUploadApiService
 
         formData.Add(streamContent, "file", file.FileName);
 
-        var response = await HttpClient.PostAsync("api/uploads", formData);
+        var response = await HttpClient.PostAsync("api/uploads/menu-item", formData);
 
         var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
             throw new Exception(json);
 
-        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<FileUploadResponse>>(json);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<string>>(json);
 
         if (apiResponse == null)
             throw new Exception("Invalid server response.");
@@ -49,6 +49,6 @@ public class UploadApiService : BaseApiService, IUploadApiService
         if (!apiResponse.Success)
             throw new Exception(apiResponse.Message);
 
-        return apiResponse.Data?.FileUrl;
+        return apiResponse.Data;//?.FileUrl;
     }
 }

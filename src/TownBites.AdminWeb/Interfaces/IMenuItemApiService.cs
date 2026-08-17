@@ -1,34 +1,46 @@
 ﻿using TownBites.AdminWeb.Models.Menu;
 using TownBites.AdminWeb.Models.Category;
+//using TownBites.Application.DTOs;
 
-namespace TownBites.AdminWeb.Interfaces;
-
-public interface IMenuItemApiService
+namespace TownBites.AdminWeb.Interfaces
 {
-    Task<List<MenuItemDto>> GetAllAsync();
+    public interface IMenuItemApiService
+    {
+        //Task<List<MenuItemDto>> GetAllAsync();
 
-    Task<MenuItemDto?> GetByIdAsync(int id);
+        //Task<MenuItemDto?> GetByIdAsync(int id);
 
-    Task CreateAsync(CreateMenuItemRequest request);
+        //Task CreateAsync(CreateMenuItemRequest request);
 
-    Task UpdateAsync(UpdateMenuItemRequest request);
+        //Task UpdateAsync(UpdateMenuItemRequest request);
 
-    Task DeleteAsync(int id);
+        //Task DeleteAsync(int id);
 
-    Task<List<CategoryLookupDto>> GetCategoriesAsync();
-}
+        Task<List<CategoryLookupDto>> GetCategoriesAsync();
 
-public interface IMenuAdminService
-{
-    Task<List<MenuItemModel>> GetAllAsync();
+        Task<TownBites.Application.DTOs.ApiResponse<List<MenuItemDto>>> GetAllAsync();
 
-    Task<MenuItemModel?> GetByIdAsync(int id);
+        Task<TownBites.Application.DTOs.ApiResponse<MenuItemDto>> GetByIdAsync(int id);
 
-    Task<bool> SaveAsync(MenuItemModel model);
+        Task<TownBites.Application.DTOs.ApiResponse<MenuItemDto>> CreateAsync(MenuItemRequest request);
 
-    Task<bool> DeleteAsync(int id);
+        Task<TownBites.Application.DTOs.ApiResponse<MenuItemDto>> UpdateAsync(int id, MenuItemRequest request);
 
-    Task<bool> ToggleAvailabilityAsync(int id);
+        Task<TownBites.Application.DTOs.ApiResponse<bool>> DeleteAsync(int id);
+    }
 
-    Task<List<CategoryModel>> GetCategoriesAsync();
+    public interface IMenuAdminService
+    {
+        Task<List<MenuItemModel>> GetAllAsync();
+
+        Task<MenuItemModel?> GetByIdAsync(int id);
+
+        Task<bool> SaveAsync(MenuItemModel model);
+
+        Task<bool> DeleteAsync(int id);
+
+        Task<bool> ToggleAvailabilityAsync(int id);
+
+        Task<List<CategoryModel>> GetCategoriesAsync();
+    }
 }

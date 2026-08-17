@@ -1,0 +1,21 @@
+﻿@model TownBites.AdminWeb.Models.Menu.MenuItemRequest
+@{
+    ViewData["Title"] = "Edit Menu Item";
+}
+
+<h2>Edit Menu Item</h2>
+
+<hr />
+
+<form asp-action="Edit"
+      asp-controller="MenuItems"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
+    <partial name="_MenuItemForm" model="Model" />
+
+</form>

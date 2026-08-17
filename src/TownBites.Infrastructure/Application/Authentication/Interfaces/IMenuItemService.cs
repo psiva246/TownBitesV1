@@ -1,4 +1,5 @@
 ﻿using TownBites.Domain.Entities;
+using TownBites.Shared.Common;
 using TownBites.Shared.Contracts.Common;
 using TownBites.Shared.Contracts.Requests;
 using TownBites.Shared.Contracts.Responses;
@@ -7,15 +8,19 @@ namespace TownBites.Infrastructure.Interfaces;
 
 public interface IMenuItemService
 {
-    Task<MenuItem> CreateAsync(int categoryId, CreateMenuItemRequest request);
+    Task<ApiResponse<List<MenuItemDto>>> GetAllAsync();
 
-    Task<List<MenuItem>> GetByCategoryAsync(int categoryId);
+    Task<ApiResponse<MenuItemDto>> GetByIdAsync(int id);
 
-    Task<MenuItem?> GetByIdAsync(int id);
+    Task<ApiResponse<List<MenuItemDto>>> GetByCategoryAsync(int categoryId);
 
-    Task<PagedResponse<MenuItemResponse>> GetAllAsync(int restaurantId, PaginationRequest request);
+    Task<ApiResponse<List<MenuItemDto>>> GetByRestaurantAsync(int restaurantId);
 
-    Task<MenuItem?> UpdateAsync(int id, UpdateMenuItemRequest request);
+    Task<ApiResponse<MenuItemDto>> CreateAsync(CreateMenuItemRequest request);
 
-    Task<bool> DeleteAsync(int id);
+    Task<ApiResponse<MenuItemDto>> UpdateAsync(int id, UpdateMenuItemRequest request);
+
+    Task<ApiResponse<bool>> DeleteAsync(int id);
+
+    Task<ApiResponse<bool>> ChangeAvailabilityAsync(int id, bool isAvailable);
 }

@@ -1,155 +1,148 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TownBites.Domain.Entities;
+//using TownBites.Application.Interfaces;
 using TownBites.Infrastructure.Interfaces;
-using TownBites.Shared.Common;
-using TownBites.Shared.Contracts.Common;
 using TownBites.Shared.Contracts.Requests;
-using TownBites.Shared.Contracts.Responses;
+using System.Security.Claims;
+using TownBites.API.Helpers;
 
-namespace TownBites.API.Controllers;
-
-[ApiController]
-//[Authorize(Roles = "Admin,Restaurant")]
-[Route("api")]
-public class MenuItemsController : ControllerBase
+namespace TownBites.API.Controllers
 {
-    private readonly IMenuItemService _menuItemService;
-
-    public MenuItemsController(IMenuItemService menuItemService)
+    [ApiController]
+    [Route("api/[controller]")]
+    //[Authorize]
+    public class MenuItemsController : ControllerBase
     {
-        _menuItemService = menuItemService;
-    }
+        private readonly IMenuItemService _menuItemService;
 
-    /// <summary>
-    /// Create a menu item under a category.
-    /// </summary>
-    [HttpPost("categories/{categoryId:int}/menu-items")]
-    public async Task<IActionResult> Create(int categoryId, [FromBody] CreateMenuItemRequest request)
-    {
-        if (!ModelState.IsValid)
+        public MenuItemsController(IMenuItemService menuItemService)
         {
-            return BadRequest(ApiResponse<object>.Fail("Validation failed."));
+            _menuItemService = menuItemService;
         }
 
-        try
+        /// <summary>
+        /// Get all menu items
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var menuItem = await _menuItemService.CreateAsync(categoryId, request);
+            TownBites.Shared.Common.ApiResponse<List<MenuItemDto>> result = new TownBites.Shared.Common.ApiResponse<List<MenuItemDto>>();
+            var restaurantClaim = UserClaimsHelper.GetRestaurantId(User);
+            if (restaurantClaim != null)
+                result = await _menuItemService.GetByRestaurantAsync(Convert.ToInt32(restaurantClaim));
+            else
+                result = await _menuItemService.GetAllAsync();
 
-            return Ok(ApiResponse<MenuItemResponse>.Ok(
-                ToResponse(menuItem),
-                "Menu item created successfully."));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<object>.Fail(ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// Get all menu items for a category.
-    /// </summary>
-    [HttpGet("categories/{categoryId:int}/menu-items")]
-    public async Task<IActionResult> GetByCategory(int categoryId)
-    {
-        var menuItems = await _menuItemService.GetByCategoryAsync(categoryId);
-
-        var response = menuItems
-            .Select(ToResponse)
-            .OrderBy(x => x.Name)
-            .ToList();
-
-        return Ok(ApiResponse<IEnumerable<MenuItemResponse>>.Ok(response));
-    }
-
-    /// <summary>
-    /// Get menu item by Id.
-    /// </summary>
-    [HttpGet("menu-items/{id:int}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var menuItem = await _menuItemService.GetByIdAsync(id);
-
-        if (menuItem == null)
-        {
-            return NotFound(ApiResponse<object>.Fail("Menu item not found."));
+            return Ok(result);
         }
 
-        return Ok(ApiResponse<MenuItemResponse>.Ok(ToResponse(menuItem)));
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PaginationRequest request)
-    {
-        var restaurantClaim = User.FindFirst("RestaurantId")?.Value;
-
-        if (string.IsNullOrWhiteSpace(restaurantClaim))
-            return Unauthorized();
-
-        var restaurantId = int.Parse(restaurantClaim);
-
-        var result = await _menuItemService.GetAllAsync(restaurantId, request);
-
-        return Ok(result);
-    }
-    /// <summary>
-    /// Update menu item.
-    /// </summary>
-    [HttpPut("menu-items/{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateMenuItemRequest request)
-    {
-        if (!ModelState.IsValid)
+        /// <summary>
+        /// Get menu item by Id
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            return BadRequest(ApiResponse<object>.Fail("Validation failed."));
+            var result = await _menuItemService.GetByIdAsync(id);
+
+            if (!result.Success)
+                return NotFound(result);
+
+            return Ok(result);
         }
 
-        var menuItem = await _menuItemService.UpdateAsync(id, request);
-
-        if (menuItem == null)
+        /// <summary>
+        /// Get menu items by category
+        /// </summary>
+        [HttpGet("category/{categoryId:int}")]
+        public async Task<IActionResult> GetByCategory(int categoryId)
         {
-            return NotFound(ApiResponse<object>.Fail("Menu item not found."));
+            var result = await _menuItemService.GetByCategoryAsync(categoryId);
+
+            return Ok(result);
         }
 
-        return Ok(ApiResponse<MenuItemResponse>.Ok(
-            ToResponse(menuItem),
-            "Menu item updated successfully."));
-    }
-
-    /// <summary>
-    /// Deactivate menu item.
-    /// </summary>
-    [HttpDelete("menu-items/{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var success = await _menuItemService.DeleteAsync(id);
-
-        if (!success)
+        /// <summary>
+        /// Get menu items by restaurant
+        /// </summary>
+        [HttpGet("restaurant/{restaurantId:int}")]
+        public async Task<IActionResult> GetByRestaurant(int restaurantId)
         {
-            return NotFound(ApiResponse<object>.Fail("Menu item not found."));
+            var result = await _menuItemService.GetByRestaurantAsync(restaurantId);
+
+            return Ok(result);
         }
 
-        return Ok(ApiResponse<object>.Ok(
-            null,
-            "Menu item deleted successfully."));
-    }
-
-    /// <summary>
-    /// Maps MenuItem entity to MenuItemResponse.
-    /// </summary>
-    private static MenuItemResponse ToResponse(MenuItem menuItem)
-    {
-        return new MenuItemResponse
+        /// <summary>
+        /// Create menu item
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateMenuItemRequest request)
         {
-            Id = menuItem.Id,
-            CategoryId = menuItem.CategoryId,
-            Name = menuItem.Name,
-            Description = menuItem.Description,
-            Price = menuItem.Price,
-            DiscountPrice = menuItem.DiscountPrice,
-            IsVeg = menuItem.IsVeg,
-            IsAvailable = menuItem.IsAvailable,
-            PreparationTimeInMinutes = menuItem.PreparationTimeInMinutes,
-            ImageUrl = menuItem.ImageUrl
-        };
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            MenuItemDto createRequest = new MenuItemDto
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Price = request.Price,
+                //DiscountPrice = request.DiscountPrice,
+                //IsVeg = request.IsVeg,
+                IsAvailable = request.IsAvailable,
+                //PreparationTimeInMinutes = request.PreparationTimeInMinutes,
+                ImageUrl = request.ImageUrl
+            };
+
+            var result = await _menuItemService.CreateAsync(request);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Update menu item
+        /// </summary>
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, UpdateMenuItemRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _menuItemService.UpdateAsync(id, request);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Delete menu item
+        /// </summary>
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _menuItemService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        ///// <summary>
+        ///// Change availability
+        ///// </summary>
+        //[HttpPatch("{id:int}/availability")]
+        //public async Task<IActionResult> ChangeAvailability(int id, [FromBody] bool isAvailable)
+        //{
+        //    var result = await _menuItemService.ChangeAvailabilityAsync(id, isAvailable);
+
+        //    if (!result.Success)
+        //        return BadRequest(result);
+
+        //    return Ok(result);
+        //}
     }
 }

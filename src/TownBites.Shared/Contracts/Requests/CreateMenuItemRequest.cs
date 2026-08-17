@@ -1,6 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace TownBites.Shared.Contracts.Requests;
+
+public class MenuItemDto
+{
+    public int Id { get; set; }
+
+    public int RestaurantId { get; set; }
+
+    public int CategoryId { get; set; }
+    public string CategoryName { get; set; }
+    public string Name { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+
+    public decimal Price { get; set; }
+    public decimal DiscountPrice { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+    public string? existingImageUrl { get; set; }
+    public bool IsAvailable { get; set; }
+    public bool IsVeg { get; set; }
+}
 
 public class CreateMenuItemRequest
 {
@@ -22,7 +43,10 @@ public class CreateMenuItemRequest
 
     public int PreparationTimeInMinutes { get; set; }
 
+    public string? existingImageUrl { get; set; }
     public string? ImageUrl { get; set; }
+    public int RestaurantId { get; set; }
+    public int CategoryId { get; set; }
 }
 
 public class UpdateMenuItemRequest
@@ -44,6 +68,8 @@ public class UpdateMenuItemRequest
     public bool IsAvailable { get; set; }
 
     public int PreparationTimeInMinutes { get; set; }
-
+    public string? existingImageUrl { get; set; }
     public string? ImageUrl { get; set; }
+    public int RestaurantId { get; set; }
+    public int CategoryId { get; set; }
 }

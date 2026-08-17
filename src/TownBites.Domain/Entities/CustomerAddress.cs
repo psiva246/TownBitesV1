@@ -23,5 +23,4 @@ public class CustomerAddress : BaseEntity
     public string Pincode { get; set; } = string.Empty;
 
     public bool IsDefault { get; set; }
-    public bool IsActive { get; set; }
 }
